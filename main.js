@@ -2,10 +2,12 @@ var lib = {}
 
 // discord
 var discord = {
+	// user stuff
 	user: undefined,
-	
+	token: undefined,
 	loggedIn: false,
 	
+	// other stuff
 	http: require("./networking/sendRequests.js"),
 	endpoints: require("./constants/endpoints.js"),
 	startGateway: require("./networking/gateway.js")
@@ -51,6 +53,7 @@ discord.messages = [];
 
 discord.events.on('READY', (e) => {
 	// user
+	discord.user = new iUser(e.user);
 	lib.user = new iUser(e.user);
 	delete e.user;
 	
@@ -244,7 +247,17 @@ discord.events.on('GUILD_CREATE', (g) => {
 discord.events.on('GUILD_DELETE', (g) => {
 	lib.events.emit('GUILD_DELETE', new iGuild(g)) // seems ok
 })
-
+discord.events.on('USER_UPDATE', (d) => {
+	if (d.id == lib.user.id) {
+		var index = lib.users.findIndex(u => u.id==lib.user.id);
+		
+		var user = new iUser(d);
+		lib.user = user;
+		discord.user = user;
+		lib.users[index] = user;
+		return;
+	}
+})
 
 discord.events.on('VOICE_STATE_UPDATE', (data) => {
 	if (data.channel_id==null) {
@@ -308,11 +321,12 @@ discord.events.on('TYPING_START', (d) => {
 lib.connect = function(info) {
 	if (discord.loggedIn) return; // already logged in
 	const prom = new Promise((resolve, reject) => {
-		if (info.token != undefined) return resolve(JSON.stringify(info))
+		if (info.token != undefined) {
+			return resolve(JSON.stringify(info))
+		}
 		discord.http.post(discord.endpoints.login, JSON.stringify(info), function(error, response, rawData) {
 			if (error) return reject(error);
 			if (response.statusCode != 200) return reject('failed');
-			
 			return resolve(rawData);
 		})
 	})

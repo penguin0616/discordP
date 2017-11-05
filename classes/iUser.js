@@ -11,11 +11,12 @@ class iUser extends iBase {
 			delete data.user;
 		}
 		
-		
 		for (var index in data) {
 			var value = data[index]
 			this[index] = value;
 		}
+		
+		if (this.username == undefined && this.name != undefined) this.username = this.name;
 		
 		if (classHelper.lib().users.find(u => u.id==this.id)==undefined) {
 			classHelper.lib().users.push(this);
@@ -69,22 +70,52 @@ class iUser extends iBase {
 		if (classHelper.isSafe(guild)) return lib.guilds.find(g => g.id==guild.id);
 	}
 	
-	setAvatar(data) {
+	edit(currentPassword, username, avatar, email, newPassword) {
 		var discord = classHelper.discord();
-		return new Promise((resolve, reject) => {
-			var data = {
-				
+		var user = discord.user;
+		username = username || user.username;
+		email = email || user.email;
+		newPassword = newPassword | null;
+		
+		if (!avatar || !(avatar instanceof Buffer)) avatar = null;
+		else {
+			const types = {
+				0xFFD8FF: "image/jpg",
+				0x89504E: "image/png"
 			};
-			
-			
+			const magic = avatar.readUIntBE(0, 3);
+			const type = types[magic];
+			if (!type) avatar = null;
+			else avatar = `data:${type};base64,` + avatar.toString("base64");
+		}
+		
+		var data = {
+			username: username,
+			email: email,
+			password: currentPassword,
+			avatar: avatar
+		};
+		
+		if (newPassword != null) data.newPassword = newPassword;
+		
+		return new Promise((resolve, reject) => {
 			discord.http.patch(
-				discord.endpoints.modifyCurrentUser, 
+				discord.endpoints.me, 
 				JSON.stringify(data),
 				function(error, response, rawData) {
-					console.log(rawData);
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						resolve(new iUser(JSON.parse(rawData)));
+					} else reject("Failed to update user.");
 				}
 			)
 		})
+	}
+	
+	setAvatar(avatar, currentPassword) {
+		var discord = classHelper.discord();
+		if (discord.user.bot==true && currentPassword==undefined) return reject('setAvatar arg#2 needs password.');
+		return this.edit(currentPassword, undefined, avatar, undefined, undefined);
 	}
 	
 }
