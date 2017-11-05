@@ -1,3 +1,4 @@
+const classHelper = require('./classHelper.js');
 const iBase = require("./iBase.js");
 const iUser = require("./iUser.js");
 
@@ -52,7 +53,7 @@ class iMessage extends iBase {
 	}
 	
 	get channel() {
-		return require("../main.js").channels.find(c => c.id == this.channel_id);
+		return classHelper.lib().channels.find(c => c.id == this.channel_id);
 	}
 }
 

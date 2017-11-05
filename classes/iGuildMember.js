@@ -1,5 +1,3 @@
-const util = require('../../util.js');
-
 const classHelper = require('./classHelper.js');
 const iUser = require('./iUser.js');
 /*
@@ -45,7 +43,7 @@ class iGuildMember extends iUser {
 	}
 	
 	get guild() {
-		return require("../main.js").guilds.find(g => g.id == this.guild_id)
+		return classHelper.lib().guilds.find(g => g.id == this.guild_id)
 	}
 	
 }

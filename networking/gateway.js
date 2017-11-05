@@ -56,7 +56,7 @@ function startGateway() {
 					"shard": [0,1],
 					"presence": {
 						"game": {
-							"name": "tryna write a discord lib",
+							"name": "writing discord library - currently doing class methods",
 							"type": 0
 						},
 						"status": "dnd",
@@ -119,7 +119,8 @@ function startGateway() {
 				GUILD_BAN_ADD:true,
 				GUILD_BAN_REMOVE:true,
 				GUILD_CREATE:true,
-				GUILD_DELETE:true
+				GUILD_DELETE:true,
+				VOICE_STATE_UPDATE:true
 			}
 			if (no[data.t]==undefined) console.log(data.t)
 			

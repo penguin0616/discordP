@@ -1,4 +1,4 @@
-const classHelper = require("./classHelper.js");
+const classHelper = require('./classHelper.js');
 const iBase = require("./iBase.js");
 const iChannel = require("./iChannel.js");
 

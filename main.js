@@ -197,6 +197,7 @@ discord.events.on('CHANNEL_DELETE', (d) => {
 	if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(d);
 	else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(d);
 	else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(d);
+	else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
 	else throw "oh no, a unknown type of channel was deleted! send penguin pic of this data: " + JSON.stringify(d);
 	
 	lib.events.emit('CHANNEL_DELETE', channel);
@@ -206,6 +207,7 @@ discord.events.on('CHANNEL_CREATE', (d) => {
 	if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(d);
 	else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(d);
 	else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(d);
+	else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
 	else throw "oh no, a unknown type of channel was deleted! send penguin pic of this data: " + JSON.stringify(d);
 	
 	lib.events.emit('CHANNEL_CREATE', channel);
@@ -249,7 +251,8 @@ discord.events.on('VOICE_STATE_UPDATE', (data) => {
 		console.log('Someone left a voice call.');
 		return;
 	}
-	console.log(data);
+	
+	//console.log(data);
 })
 
 
@@ -306,7 +309,12 @@ lib.connect = function(info) {
 	if (discord.loggedIn) return; // already logged in
 	const prom = new Promise((resolve, reject) => {
 		if (info.token != undefined) return resolve(JSON.stringify(info))
-		discord.http.post(discord.endpoints.login, JSON.stringify(info), resolve, reject)
+		discord.http.post(discord.endpoints.login, JSON.stringify(info), function(error, response, rawData) {
+			if (error) return reject(error);
+			if (response.statusCode != 200) return reject('failed');
+			
+			return resolve(rawData);
+		})
 	})
 	prom.then((d) => {
 		let data = JSON.parse(d);
@@ -344,100 +352,3 @@ module.exports = lib;
 
 
 
-/*
-var lib = {}
-
-// modules
-const httpGet = require("./modules/httpGet.js");
-const httpPost = require("./modules/httpPost.js");
-const eventEmitter = require("events");
-
-// other const stuff
-class myEmitter extends eventEmitter {}
-const baseUrl = "https://discordapp.com"
-const sendPost = function(path, postData, callback, onError) {
-	let headers = {
-		'Content-Type': 'application/json'
-	}
-	if (discord.token) headers['Authorization'] = discord.token;
-	return httpPost({
-		url: baseUrl + path,
-		postData: postData,
-		headers: headers
-	}, callback, onError)
-}
-
-
-const sendGet = function(path, callback, onError) {
-	let headers = {
-		'Content-Type': 'application/json'
-	}
-	if (discord.token) headers['Authorization'] = discord.token;
-	return httpGet({
-		url: baseUrl + path,
-		headers: headers
-	}, callback, onError)
-}
-
-// data
-var discord = {
-	token: undefined,
-	endpoints: {
-		login: "/api/v6/auth/login", // "/auth/login"
-		me: "/api/v6/users/@me"
-	}
-}
-
-
-
-// events
-
-lib.events = new myEmitter();
-
-
-// local
-var local = {}
-
-local.getCurrentUser = function() {
-	sendGet(discord.endpoints.me, function(d) {
-		var data = JSON.parse(d);
-	}, function() {
-		console.log('wot happn')
-	})
-}
-
-
-// lib
-
-lib.connect = function(info) {
-	const prom = new Promise((resolve, reject) => {
-		if (info.token != undefined) return resolve(JSON.stringify(info))
-		sendPost(discord.endpoints.login, JSON.stringify(info), resolve, reject)
-	})
-	prom.then((d) => {
-		let data = JSON.parse(d);
-		if (data.token) {
-			discord.token = data.token;
-			lib.events.emit('LOGIN_SUCCESS');
-			
-			
-			asd();
-			
-			
-			return;
-		}
-		lib.events.emit('LOGIN_FAIL', "INVALID LOGIN INFO");
-	})
-	prom.catch((e) => {
-		lib.events.emit('LOGIN_FAIL', "UNABLE TO CONNECT TO DISCORD");
-	})
-}
-
-
-
-
-
-
-
-module.exports = lib;
-*/

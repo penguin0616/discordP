@@ -18,7 +18,7 @@ class iChannel extends iBase {
 	
 	get guild() {
 		if (this.guild_id == undefined) return undefined;
-		return require("../main.js").guilds.find(g => g.id == this.guild_id)
+		return classHelper.lib().guilds.find(g => g.id == this.guild_id)
 	}
 }
 

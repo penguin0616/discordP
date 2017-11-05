@@ -1,3 +1,37 @@
+const classHelper = require('../classes/classHelper.js');
+const request = require('./request.js');
+const endpoints = require('../constants/endpoints.js');
+
+module.exports.post = function(path, postData, handler) {
+	let headers = {
+		'Content-Type': 'application/json'
+	}
+	var token = classHelper.discord().token;
+	if (token) headers['Authorization'] = token;
+	
+	
+	return request.post({
+		url: endpoints.baseUrl + path,
+		postData: postData,
+		headers: headers
+	}, handler)
+}
+
+module.exports.get = function(path, handler) {
+	let headers = {
+		'Content-Type': 'application/json'
+	}
+	var token = classHelper.discord().token;
+	if (token) headers['Authorization'] = token;
+	
+	
+	return request.get({
+		url: endpoints.baseUrl + path,
+		headers: headers
+	}, handler)
+}
+
+/*
 const httpGet = require("./httpGet.js");
 const httpPost = require("./httpPost.js");
 const endpoints = require("../constants/endpoints.js");
@@ -30,3 +64,4 @@ module.exports.get = function(path, callback, onError) {
 		headers: headers
 	}, callback, onError)
 }
+*/

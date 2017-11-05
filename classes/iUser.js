@@ -16,23 +16,60 @@ class iUser extends iBase {
 			var value = data[index]
 			this[index] = value;
 		}
+		
+		if (classHelper.lib().users.find(u => u.id==this.id)==undefined) {
+			classHelper.lib().users.push(this);
+		}
+		
+		
 	}
 
 	get fullName() { return `${this.username}#${this.discriminator}` }
 	
 	get isFriend() {
-		if (require("../main.js").friends.find(u => u.id == this.id)) return true;
+		if (classHelper.lib().friends.find(u => u.id == this.id)) return true;
 		return false;
 	}
 	
 	get isBlocked() {
-		if (require("../main.js").blocked.find(u => u.id == this.id)) return true;
+		if (classHelper.lib().blocked.find(u => u.id == this.id)) return true;
 		return false;
 	}
 	
 	get note() {
-		return require("../main.js").notes.find(n => n.id==this.id);
+		return classHelper.lib().notes.find(n => n.id==this.id);
 	}
+	
+	openDM() {
+		var discord = classHelper.discord();
+		return new Promise((resolve, reject) => {
+			var data = {recipient_id: this.id};
+			discord.http.post(
+				discord.endpoints.createDM,
+				JSON.stringify(data),
+				function(error, response, rawData) {
+					var data = JSON.parse(rawData);
+					if (data.code) {
+						return reject(data.message)
+					}
+					const iDMChannel = require('./iDMChannel.js')
+					var dm = new iDMChannel(data);
+					resolve(dm);
+				}
+			)
+		})
+	}
+	
+	isMemberOf(guild) {
+		var lib = classHelper.lib();
+		if (classHelper.isSafe(guild)) return lib.guilds.find(g => g.id==guild.id);
+	}
+	
+	setAvatar(data) {
+		var discord = classHelper.discord();
+		
+	}
+	
 }
 
 module.exports = iUser;

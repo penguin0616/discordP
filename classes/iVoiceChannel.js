@@ -6,7 +6,7 @@ class iVoiceChannel extends iChannel {
 	constructor(data, guild) {
 		super(data, guild);
 		
-		var lib = require("../main.js")
+		var lib = classHelper.lib();
 		if (lib.channels.find(c => c.id==this.id)==undefined) lib.channels.push(this);
 	}
 }

@@ -1,5 +1,4 @@
 const constants = require('../constants/constants.js');
-
 const classHelper = require("./classHelper.js");
 const iBase = require("./iBase.js");
 const iRole = require("./iRole.js");
@@ -103,6 +102,14 @@ class iGuild extends iBase {
 		}
 		return channels;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
 
