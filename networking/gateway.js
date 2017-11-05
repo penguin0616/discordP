@@ -53,8 +53,9 @@ function startGateway() {
 					},
 					"compress": true,
 					"large_threshold": 250,
-					"shard": [0,1],
-					"presence": {
+					"shard": [0,1]
+					/*
+					"presence": { // try to remove this or something // do stuff with event thing in cmd prompt
 						"game": {
 							"name": "writing discord library - currently doing class methods",
 							"type": 0
@@ -63,6 +64,7 @@ function startGateway() {
 						"since": 91879201,
 						"afk": false
 					}
+					*/
 				}
 			}
 			ws.send(JSON.stringify(toSend));

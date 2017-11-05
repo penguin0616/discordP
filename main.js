@@ -336,7 +336,6 @@ lib.connect = function(info) {
 			discord.token = data.token;
 			discord.loggedIn = true;
 			lib.events.emit('LOGIN_SUCCESS');
-			//discord.getUser();
 			discord.gateway = discord.startGateway();
 			return;
 		}

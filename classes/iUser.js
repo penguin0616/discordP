@@ -118,6 +118,11 @@ class iUser extends iBase {
 		return this.edit(currentPassword, undefined, avatar, undefined, undefined);
 	}
 	
+	setStatus(status, game) {
+		var discord = classHelper.discord();
+		
+	}
+	
 }
 
 module.exports = iUser;
