@@ -43,7 +43,11 @@ class iUser extends iBase {
 	openDM() {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
-			var data = {recipient_id: this.id};
+			var data = {
+				recipient_id: this.id
+			};
+			
+			
 			discord.http.post(
 				discord.endpoints.createDM,
 				JSON.stringify(data),
@@ -67,7 +71,20 @@ class iUser extends iBase {
 	
 	setAvatar(data) {
 		var discord = classHelper.discord();
-		
+		return new Promise((resolve, reject) => {
+			var data = {
+				
+			};
+			
+			
+			discord.http.patch(
+				discord.endpoints.modifyCurrentUser, 
+				JSON.stringify(data),
+				function(error, response, rawData) {
+					console.log(rawData);
+				}
+			)
+		})
 	}
 	
 }

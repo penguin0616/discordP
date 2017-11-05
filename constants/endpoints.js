@@ -3,5 +3,13 @@ module.exports = {
 	
 	login: "/api/v6/auth/login",
 	me: "/api/v6/users/@me",
-	createDM: "/api/v6/users/@me/channels"
+	
+	
+	
+	createDM: "/api/v6/users/@me/channels",
+	
+	
+	modifyCurrentUser: "/api/v6/users/@me"
+	
+	
 }
