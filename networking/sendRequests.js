@@ -31,6 +31,21 @@ module.exports.get = function(path, handler) {
 	}, handler)
 }
 
+module.exports.patch = function(path, postData, handler) {
+	let headers = {
+		'Content-Type': 'application/json'
+	}
+	var token = classHelper.discord().token;
+	if (token) headers['Authorization'] = token;
+	
+	
+	return request.patch({
+		url: endpoints.baseUrl + path,
+		postData: postData,
+		headers: headers
+	}, handler)
+}
+
 /*
 const httpGet = require("./httpGet.js");
 const httpPost = require("./httpPost.js");
