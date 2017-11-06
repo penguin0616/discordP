@@ -59,7 +59,7 @@ class iMessage extends iBase {
 	delete() {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
-			var url = discord.endpoints.deleteMessage;
+			var url = discord.endpoints.manageMessage;
 			url = url.replace("{channel.id}", this.channel_id);
 			url = url.replace("{message.id}", this.id);
 			discord.http.delete(
@@ -102,6 +102,26 @@ class iMessage extends iBase {
 					if (error) return reject(error);
 					if (response.statusCode==204) return resolve();
 					reject('unpin failed for unknown reason');
+				}
+			)
+		})
+	}
+	
+	edit(content, embed) {
+		var discord = classHelper.discord();
+		
+		return new Promise((resolve, reject) => {
+			var url = discord.endpoints.manageMessage;
+			url = url.replace("{channel.id}", this.channel_id);
+			url = url.replace("{message.id}", this.id);
+			discord.http.patch(
+				url,
+				JSON.stringify({content: content, embed: embed}),
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					
+					if (response.statusCode==200) return resolve(new iMessage(JSON.parse(rawData)))
+					reject('edit failed for unknown reason');
 				}
 			)
 		})
