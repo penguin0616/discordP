@@ -67,6 +67,41 @@ class iMessage extends iBase {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					if (response.statusCode==204) return resolve();
+					reject('delete failed for unknown reason');
+				}
+			)
+		})
+	}
+	
+	pin() {
+		var discord = classHelper.discord();
+		return new Promise((resolve, reject) => {
+			var url = discord.endpoints.channelPin;
+			url = url.replace("{channel.id}", this.channel_id);
+			url = url.replace("{message.id}", this.id);
+			discord.http.put(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject('pin failed for unknown reason');
+				}
+			)
+		})
+	}
+	
+	unpin() {
+		var discord = classHelper.discord();
+		return new Promise((resolve, reject) => {
+			var url = discord.endpoints.channelPin;
+			url = url.replace("{channel.id}", this.channel_id);
+			url = url.replace("{message.id}", this.id);
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject('unpin failed for unknown reason');
 				}
 			)
 		})

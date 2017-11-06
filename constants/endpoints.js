@@ -5,7 +5,8 @@ module.exports = {
 	login: "/api/v6/auth/login",
 	me: "/api/v6/users/@me",
 	createDM: "/api/v6/users/@me/channels",
-	deleteMessage: "/api/v6/channels/{channel.id}/messages/{message.id}"
+	deleteMessage: "/api/v6/channels/{channel.id}/messages/{message.id}",
+	channelPin: "/api/v6/channels/{channel.id}/pins/{message.id}"
 	
 	
 }
