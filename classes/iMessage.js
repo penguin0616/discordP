@@ -55,6 +55,22 @@ class iMessage extends iBase {
 	get channel() {
 		return classHelper.lib().channels.find(c => c.id == this.channel_id);
 	}
+	
+	delete() {
+		var discord = classHelper.discord();
+		return new Promise((resolve, reject) => {
+			var url = discord.endpoints.deleteMessage;
+			url = url.replace("{channel.id}", this.channel_id);
+			url = url.replace("{message.id}", this.id);
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) reject(error);
+					if (response.statusCode==204) resolve();
+				}
+			)
+		})
+	}
 }
 
 module.exports = iMessage;
