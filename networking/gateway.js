@@ -1,8 +1,8 @@
 const webSocket = require('ws');
 const pako = require('pako');
-const iUser = require("../classes/iUser.js");
-const iMessage = require("../classes/iMessage.js");
-const time = require("../../time.js");
+const classHelper = require('../classes/classHelper.js');
+const constants = classHelper.constants();
+const endpoints = classHelper.endpoints();
 
 /*
 Gateway Opcodes
@@ -22,9 +22,98 @@ Code	Name					Client Action		Description
 11		Heartbeat ACK			Receive				sent immediately following a client heartbeat that was received
 */
 
+class gateway {
+	constructor(discord, shard, maxShards) {
+		var ws = new webSocket(endpoints.gateway);
+		
+		this.connected = false;
+		this.sequenceNumber = 0;
+		
+		var _this = this;
+		
+		ws.on('open', function() {
+			_this.connected = true;
+		})
+		
+		
+		ws.on('message', function(rawData) {
+			const isBlob = (rawData instanceof Buffer || rawData instanceof ArrayBuffer);
+			if (isBlob) { // took a while to figure out that the "massive buffer" was actually the 'READY' dispatch
+				rawData = pako.inflate(rawData, {to: "string"});
+			}
+			var data = JSON.parse(rawData);
+			if (data.s != null) _this.sequenceNumber = data.s;
+			
+			if (data.op == constants.OPCODE.HELLO) {
+				var identify = {
+					"op": constants.OPCODE.IDENTIFY,
+					"d": {
+						"token": discord.token,
+						"properties": {
+							"$os": 'win32',
+							"$browser": "discordP",
+							"$device": "discordP"
+						},
+						"compress": true,
+						"large_threshold": 250,
+						"shard": [shard-1, maxShards]
+					}
+				}
+				
+				_this.send(identify);
+				_this.heartbeat_interval = data.d.heartbeat_interval
+				
+				console.log('Identified to Discord');
+			} else if (data.op == constants.OPCODE.HEARTBEAT_ACK) {
+				// they ack'd our heartbeat ping
+				return;
+			} else if (data.op == constants.OPCODE.HEARTBEAT) {
+				_this.ping();
+			} else if (data.op == constants.OPCODE.DISPATCH) { // dispatch
+				discord.events.emit('ANY', data.t, data.d);
+				discord.events.emit(data.t, data.d);
+			}
+		})
+		
+		ws.on("close", function(code, data) {
+			_this.connected = false;
+			console.log('Close:', code, data)
+		})
+		ws.on("error", function(code, data) {
+			_this.connected = false;
+			console.log('Error:', code, data)
+		})
+		
+		this.socket = ws;
+	}
+	
+	send(data) {
+		if (this.connected == false) throw 'gateway disconnected!'; // not connected
+		//if (data.s == undefined) {this.sequenceNumber++; data.s = this.sequenceNumber};
+		this.socket.send(JSON.stringify(data));
+	}
+	
+	ping() {
+		this.sequenceNumber++
+		var heartbeat = {
+			"op": constants.OPCODE.HEARTBEAT,
+			"d": this.sequenceNumber
+		}
+		this.sequenceNumber++
+		this.send(heartbeat)
+	}
+}
+
+module.exports = gateway;
+
+
+
+
+
+/*
 var lastSeq = 0;
 function startGateway() {
-	var discord = require("../main.js").discord();
+	var discord = classHelper.discord();
 
 	var ws = new webSocket("wss://gateway.discord.gg/?v=6&encoding=json");
 
@@ -33,29 +122,27 @@ function startGateway() {
 	})
 	ws.on('message', function(rawData) {
 		const isBlob = (rawData instanceof Buffer || rawData instanceof ArrayBuffer);
-		
-		if (isBlob) {
+		if (isBlob) { // took a while to figure out that the "massive buffer" was actually the 'READY' dispatch
 			rawData = pako.inflate(rawData, {to: "string"});
 		}
-			
+		
+		
 		data = JSON.parse(rawData);
 		if (data.s != null) lastSeq = data.s;
-		
-		if (data.op == 10) {
+		if (data.op == constants.OPCODE.HELLO) { // they said hi to us, send them some info
 			var toSend = {
-				"op": 2,
+				"op": constants.OPCODE.IDENTIFY,
 				"d": {
 					"token": discord.token,
 					"properties": {
-						"$os": "linux",
-						"$browser": "disco",
-						"$device": "disco"
+						"$os": "linux", // not really
+						"$browser": "disco", // not really
+						"$device": "disco" // not really
 					},
 					"compress": true,
 					"large_threshold": 250,
 					"shard": [0,1]
-					/*
-					"presence": { // try to remove this or something // do stuff with event thing in cmd prompt
+					"presence": {
 						"game": {
 							"name": "writing discord library - currently doing class methods",
 							"type": 0
@@ -64,42 +151,26 @@ function startGateway() {
 						"since": 91879201,
 						"afk": false
 					}
-					*/
 				}
 			}
 			ws.send(JSON.stringify(toSend));
-			
 			setInterval(function() {
 				lastSeq++
 				var heartbeat = JSON.stringify({
-					"op": 1,
+					"op": constants.OPCODE.HEARTBEAT,
 					"d": lastSeq
 				})
 				ws.send(heartbeat)
 				lastSeq++
 			}, data.d.heartbeat_interval)
-
-			
 			console.log("Identified to Discord.");
 			return;
 			
-		} else if (data.op == 11) {
+		} else if (data.op == constants.OPCODE.HEARTBEAT_ACK) {
 			// they ack'd our heartbeat ping
 			return;
 		
-		} else if (data.op == 0) { // dispatch
-			/*
-			if (data.t == 'PRESENCE_UPDATE') return;
-			else if (data.t == 'MESSAGE_ACK') return;
-			else if (data.t == 'MESSAGE_CREATE') {
-				discord.events.emit("MESSAGE_CREATE", data.d)
-				return;
-			} else if (data.t == 'READY') {
-				
-				return;
-			}
-			*/
-			
+		} else if (data.op == constants.OPCODE.DISPATCH) { // dispatch
 			var no = {
 				READY:true,
 				MESSAGE_CREATE:true,
@@ -131,9 +202,6 @@ function startGateway() {
 			
 			
 		}
-		
-		
-		//console.log('Message:', data);
 	})
 
 	ws.on("close", function(code, data) {
@@ -142,10 +210,8 @@ function startGateway() {
 	ws.on("error", function(code, data) {
 		console.log('Error:', code, data)
 	})
-	
-
 	return ws
-
 }
 
 module.exports = startGateway;
+*/

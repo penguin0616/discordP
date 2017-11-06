@@ -118,9 +118,25 @@ class iUser extends iBase {
 		return this.edit(currentPassword, undefined, avatar, undefined, undefined);
 	}
 	
+	
 	setStatus(status, game) {
-		var discord = classHelper.discord();
+		var afk = (classHelper.type(status)=='object' && status.afk) || false;
+		var type = (classHelper.type(status)=='object' && status.status) || status;
 		
+		if (classHelper.type(game)=='object') {
+			if (game.name == undefined || game.type == undefined) game = null;
+		} else if (classHelper.type(game) != 'object' && game != null) game = null;
+		
+		var data = {
+			op: classHelper.constants().OPCODE.STATUS_UPDATE,
+			d: {
+				"game": game,
+				"status": type,
+				"since": null, // need to work on that
+				"afk": afk
+			}
+		}
+		classHelper.discord().gateway.send(data)
 	}
 	
 }

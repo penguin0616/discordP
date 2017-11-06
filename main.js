@@ -10,7 +10,6 @@ var discord = {
 	// other stuff
 	http: require("./networking/sendRequests.js"),
 	endpoints: require("./constants/endpoints.js"),
-	startGateway: require("./networking/gateway.js")
 }
 
 // events
@@ -33,9 +32,7 @@ const iTextChannel = require("./classes/iTextChannel.js");
 const iVoiceChannel = require("./classes/iVoiceChannel.js");
 const iChannelCategory = require("./classes/iChannelCategory.js");
 
-
-
-
+const gateway = require("./networking/gateway.js")
 
 // stuff
 lib.user = undefined;
@@ -52,6 +49,9 @@ discord.messages = [];
 
 
 discord.events.on('READY', (e) => {
+	setInterval(function() {
+		discord.gateway.ping();
+	}, discord.gateway.heartbeat_interval)
 	// user
 	discord.user = new iUser(e.user);
 	lib.user = new iUser(e.user);
@@ -149,7 +149,6 @@ discord.events.on('GUILD_MEMBER_REMOVE', (m) => {
 })
 discord.events.on('MESSAGE_UPDATE', (m) => {
 	if (m.author==undefined) return; // embed
-	if (m.author.username!='penguin0616') return;
 	var msg = new iMessage(m);
 	var info = discord.messages[msg.id]
 	if (info==undefined) { // created before we could log it
@@ -336,7 +335,7 @@ lib.connect = function(info) {
 			discord.token = data.token;
 			discord.loggedIn = true;
 			lib.events.emit('LOGIN_SUCCESS');
-			discord.gateway = discord.startGateway();
+			discord.gateway = new gateway(discord, 1, 1);
 			return;
 		}
 		lib.events.emit('LOGIN_FAIL', "INVALID LOGIN INFO");

@@ -131,7 +131,30 @@ module.exports.patch = function(args, handler) {
 	if (method=='https') useHttps(options, handler);
 }
 
-
+module.exports.delete = function(args, handler) {
+	var url, headers, postData
+	
+	if (typeof(args)=='string') url = args
+	else if (typeof(args)=='object') { url = args.url; headers = args.headers; postData = args.postData;}
+	var ui = handleURL(url)
+	
+	if (typeof(ui)=='string') return handler(new Error(ui));
+	
+	var method = ui.method,
+		hostname = ui.hostname,
+		path = ui.path;
+	
+	var options = {
+		hostname: hostname,
+		path: path,
+		method: 'DELETE',
+		headers: headers,
+		postData: postData
+	}
+	
+	if (method=='http') useHttp(options, handler);
+	if (method=='https') useHttps(options, handler);
+}
 
 
 
