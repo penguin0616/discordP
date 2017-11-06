@@ -59,6 +59,19 @@ module.exports.delete = function(path, handler) {
 		headers: headers
 	}, handler)
 }
+module.exports.put = function(path, handler) {
+	let headers = {
+		'Content-Type': 'application/json'
+	}
+	var token = classHelper.discord().token;
+	if (token) headers['Authorization'] = token;
+	
+	
+	return request.put({
+		url: endpoints.baseUrl + path,
+		headers: headers
+	}, handler)
+}
 
 /*
 const httpGet = require("./httpGet.js");
