@@ -65,8 +65,8 @@ class iMessage extends iBase {
 			discord.http.delete(
 				url, 
 				function(error, response, rawData) {
-					if (error) reject(error);
-					if (response.statusCode==204) resolve();
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
 				}
 			)
 		})
