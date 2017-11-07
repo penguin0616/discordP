@@ -16,7 +16,6 @@ class iTextChannel extends iChannel {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.createMessage, {"channel.id": this.id})
-			console.log(url);
 			discord.http.post(
 				url,
 				JSON.stringify({
