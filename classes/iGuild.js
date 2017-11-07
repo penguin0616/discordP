@@ -36,15 +36,13 @@ const iChannelCategory = require("./iChannelCategory.js");
 
 class iGuild extends iBase {
 	constructor(data) {
-		var what = super(data)
+		super(data)
 		
-		classHelper.setHiddenProperty(this, 'raw_roles', data.roles);
-		classHelper.setHiddenProperty(this, 'raw_channels', data.channels);
-		classHelper.setHiddenProperty(this, 'raw_members', data.members);
+		//classHelper.setHiddenProperty(this, 'data.members', data.members);
 		
-		delete data.roles;
-		delete data.channels;
-		delete data.members;
+		//delete data.roles;
+		//delete data.channels;
+		//delete data.members;
 		
 		for (var index in data) {
 			var value = data[index]
@@ -53,8 +51,8 @@ class iGuild extends iBase {
 		
 		// role stuff
 		this.roles = [];
-		for (var i in this.raw_roles) {
-			var v = this.raw_roles[i];
+		for (var i in data.roles) {
+			var v = data.roles[i];
 			var role = new iRole(v);
 			this.roles.push(role);
 		}
@@ -62,8 +60,8 @@ class iGuild extends iBase {
 		// channel stuff
 		this.channels = [];
 		this.channelCategories = [];
-		for (var i in this.raw_channels) {
-			var v = this.raw_channels[i];
+		for (var i in data.channels) {
+			var v = data.channels[i];
 			if (v.type == constants.CHANNELS.TEXT) this.channels.push(new iTextChannel(v, this))
 			else if (v.type == constants.CHANNELS.VOICE) this.channels.push(new iVoiceChannel(v, this))
 			else if (v.type == constants.CHANNELS.CATEGORY) this.channelCategories.push(new iChannelCategory(v, this))
@@ -71,8 +69,8 @@ class iGuild extends iBase {
 	
 		// guild member stuff
 		this.members = [];
-		for (var i in this.raw_members) {
-			var v = this.raw_members[i];
+		for (var i in data.members) {
+			var v = data.members[i];
 			var member = new iGuildMember(v, this);
 			this.members.push(member);
 		}

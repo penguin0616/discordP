@@ -13,12 +13,16 @@ module.exports.endpoints = function() {
 	return require("../constants/endpoints.js");
 }
 
-module.exports.setHiddenProperty = function(proto, name, value) {
-	var proto = Object.getPrototypeOf(this);
+module.exports.setHiddenProperty = function(state, name, value) {
+	Object.defineProperty(state, name, {value: value, enumerable: false, writable: true, configurable: true})
+	// did not work right
+	/*
+	var proto = Object.getPrototypeOf(state);
 	proto[name] = value
 	Object.defineProperties(proto, {
 		[name]: {enumerable: false}
 	})
+	*/
 }
 
 module.exports.isSafe = function(thingy) {
