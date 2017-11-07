@@ -50,8 +50,9 @@ class iGuildMember extends iUser {
 		return new Promise((resolve, reject) => {
 			var url = discord.endpoints.modifyGuildMember;
 			if (discord.user.id == this.id) url = discord.endpoints.modifyCurrentUsersNick
-			url = url.replace("{guild.id}", this.guild_id);
-			url = url.replace("{user.id}", this.id);
+			
+			url = classHelper.formatURL(url, {"guild.id": this.guild_id, "user.id": this.id})
+			
 			discord.http.patch(
 				url,
 				JSON.stringify({

@@ -59,9 +59,7 @@ class iMessage extends iBase {
 	delete() {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
-			var url = discord.endpoints.manageMessage;
-			url = url.replace("{channel.id}", this.channel_id);
-			url = url.replace("{message.id}", this.id);
+			var url = classHelper.formatURL(discord.endpoints.manageMessage, {"channel.id": this.channel_id, "message.id": this.id})
 			discord.http.delete(
 				url, 
 				function(error, response, rawData) {
@@ -76,9 +74,8 @@ class iMessage extends iBase {
 	pin() {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
-			var url = discord.endpoints.channelPin;
-			url = url.replace("{channel.id}", this.channel_id);
-			url = url.replace("{message.id}", this.id);
+			var url = classHelper.formatURL(discord.endpoints.channelPin, {"channel.id": this.channel_id, "message.id": this.id})
+			
 			discord.http.put(
 				url, 
 				function(error, response, rawData) {
@@ -93,9 +90,8 @@ class iMessage extends iBase {
 	unpin() {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
-			var url = discord.endpoints.channelPin;
-			url = url.replace("{channel.id}", this.channel_id);
-			url = url.replace("{message.id}", this.id);
+			var url = classHelper.formatURL(discord.endpoints.channelPin, {"channel.id": this.channel_id, "message.id": this.id})
+			
 			discord.http.delete(
 				url, 
 				function(error, response, rawData) {
@@ -111,9 +107,8 @@ class iMessage extends iBase {
 		var discord = classHelper.discord();
 		
 		return new Promise((resolve, reject) => {
-			var url = discord.endpoints.manageMessage;
-			url = url.replace("{channel.id}", this.channel_id);
-			url = url.replace("{message.id}", this.id);
+			var url = classHelper.formatURL(discord.endpoints.manageMessage, {"channel.id": this.channel_id, "message.id": this.id});
+			
 			discord.http.patch(
 				url,
 				JSON.stringify({content: content, embed: embed}),

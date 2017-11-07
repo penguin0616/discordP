@@ -42,3 +42,13 @@ module.exports.type = function(operand) {
 	if (Array.isArray(operand)) return 'array';
 	return typeof(operand);
 }
+
+module.exports.formatURL = function(rawUrl, formats) {
+	
+	for (var frum in formats) {
+		var to = formats[frum];
+		rawUrl = rawUrl.replace("{"+frum+"}", to);
+	}
+	
+	return rawUrl
+}
