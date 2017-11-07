@@ -116,6 +116,7 @@ class iMessage extends iBase {
 					if (error) return reject(error);
 					
 					if (response.statusCode==200) return resolve(new iMessage(JSON.parse(rawData)))
+					
 					reject('edit failed for unknown reason');
 				}
 			)

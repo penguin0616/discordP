@@ -49,10 +49,13 @@ discord.messages = [];
 
 
 discord.events.on('READY', (e) => {
+	// run heartbeat
 	setInterval(function() {
 		discord.gateway.ping();
 	}, discord.gateway.heartbeat_interval)
+	
 	// user
+	if (e.user.bot==true) discord.token = "Bot " + discord.token;
 	discord.user = new iUser(e.user);
 	lib.user = new iUser(e.user);
 	delete e.user;
@@ -62,6 +65,8 @@ discord.events.on('READY', (e) => {
 		var rawGuild = e.guilds[index];
 		lib.guilds.push(new iGuild(rawGuild));
 	}
+	
+	
 	delete e.guilds;
 	
 	// relationships
@@ -241,10 +246,15 @@ discord.events.on('GUILD_UPDATE', (d) => {
 	lib.events.emit('GUILD_UPDATE', guild);
 })
 discord.events.on('GUILD_CREATE', (g) => {
-	lib.events.emit('GUILD_CREATE', new iGuild(g)) // seems ok
+	var guild = new iGuild(g);
+	lib.guilds.push(g);
+	lib.events.emit('GUILD_CREATE', g) // seems ok
 })
-discord.events.on('GUILD_DELETE', (g) => {
-	lib.events.emit('GUILD_DELETE', new iGuild(g)) // seems ok
+discord.events.on('GUILD_DELETE', (d) => {
+	var index = lib.guilds.findIndex(g => g.id==d.id);
+	var guild = lib.guilds[index];
+	lib.guilds.splice(index, 1);
+	lib.events.emit('GUILD_DELETE', guild) // seems ok
 })
 discord.events.on('USER_UPDATE', (d) => {
 	if (d.id == lib.user.id) {
@@ -319,13 +329,15 @@ discord.events.on('TYPING_START', (d) => {
 // library
 lib.connect = function(info) {
 	if (discord.loggedIn) return; // already logged in
+	
 	const prom = new Promise((resolve, reject) => {
 		if (info.token != undefined) {
 			return resolve(JSON.stringify(info))
 		}
 		discord.http.post(discord.endpoints.login, JSON.stringify(info), function(error, response, rawData) {
 			if (error) return reject(error);
-			if (response.statusCode != 200) return reject('failed');
+			console.log(rawData);
+			if (response.statusCode != 200) return reject('Failed to login to discord');
 			return resolve(rawData);
 		})
 	})

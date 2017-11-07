@@ -16,19 +16,21 @@ class iTextChannel extends iChannel {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.createMessage, {"channel.id": this.id})
+			
 			discord.http.post(
 				url,
 				JSON.stringify({
 					content: content,
-					// nonce: null, // dunno what that is
+					//nonce: null, // dunno what that is
 					tts: tts || false,
 					// file: null, // what
 					embed: embed || null
 				}),
 				function(error, response, rawData) {
 					if (error) return reject(error);
-					if (response.statusCode==200) return resolve(new iMessage(JSON.parse(rawData)))
-					reject('Unable to send message');
+					var data = JSON.parse(rawData);
+					if (response.statusCode==200) return resolve(new iMessage(data))
+					reject('Unable to send message: ' + data.message);
 				}
 			)
 		})

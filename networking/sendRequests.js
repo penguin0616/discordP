@@ -66,6 +66,7 @@ module.exports.put = function(path, handler) {
 	var token = classHelper.discord().token;
 	if (token) headers['Authorization'] = token;
 	
+
 	
 	return request.put({
 		url: endpoints.baseUrl + path,
