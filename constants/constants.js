@@ -23,5 +23,42 @@ module.exports = {
 		INVALID_SESSION: 9,
 		HELLO: 10,
 		HEARTBEAT_ACK: 11
+	},
+	PERMISSIONS: {
+		GENERAL: {
+			CreateInstantInvite: 0x1,
+            KickMembers: 0x2,
+            BanMembers: 0x4,
+            Administrator: 0x8,
+            ManageChannels: 0x10,
+            ManageServer: 0x20,
+            ChangeNickname: 0x4000000,
+            ManageNicknames: 0x8000000,
+            ManageRoles: 0x10000000,
+            ManageWebhooks: 0x20000000,
+            ManageEmojis: 0x40000000,
+            ViewAuditLog: 0x80
+		},
+		TEXT: {
+            AddReactions: 0x40,
+            ReadMessages: 0x400,
+            SendMessages: 0x800,
+            SendTTSMessages: 0x1000,
+            ManageMessages: 0x2000,
+            EmbedLinks: 0x4000,
+            AttachFiles: 0x8000,
+            ReadMessageHistory: 0x10000,
+            MentionEveryone: 0x20000,
+            UseExternalEmojis: 0x40000
+		},
+		VOICE: {
+            ViewChannel: 0x400,
+            Connect: 0x100000,
+            Speak: 0x200000,
+            MuteMembers: 0x400000,
+            DeafenMembers: 0x800000,
+            MoveMembers: 0x1000000,
+            UseVAD: 0x2000000
+		}
 	}
 }

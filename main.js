@@ -245,10 +245,12 @@ discord.events.on('GUILD_UPDATE', (d) => {
 	
 	lib.events.emit('GUILD_UPDATE', guild);
 })
-discord.events.on('GUILD_CREATE', (g) => {
-	var guild = new iGuild(g);
-	lib.guilds.push(g);
-	lib.events.emit('GUILD_CREATE', g) // seems ok
+discord.events.on('GUILD_CREATE', (d) => {
+	var guild = new iGuild(d);
+	var index = lib.guilds.findIndex(g => g.id==d.id);
+	lib.guilds[index] = guild;
+	
+	lib.events.emit('GUILD_CREATE', guild) // seems ok
 })
 discord.events.on('GUILD_DELETE', (d) => {
 	var index = lib.guilds.findIndex(g => g.id==d.id);
