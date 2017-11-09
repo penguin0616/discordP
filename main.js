@@ -134,6 +134,7 @@ discord.events.on('READY', (e) => {
 		} else throw 'unknown private_channel type found'
 	}
 	delete e.private_channels;
+	lib.events.emit('GATEWAY_READY');
 })
 discord.events.on('MESSAGE_CREATE', (m) => {
 	var msg = new iMessage(m);
@@ -200,24 +201,76 @@ discord.events.on('GUILD_MEMBER_UPDATE', (d) => {
 	lib.events.emit('GUILD_MEMBER_UPDATE', gm);
 })
 discord.events.on('CHANNEL_DELETE', (d) => {
+	/*
 	var channel
 	if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(d);
 	else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(d);
 	else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(d);
 	else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
 	else throw "oh no, a unknown type of channel was deleted! send penguin pic of this data: " + JSON.stringify(d);
+	*/
+	
+	var channel = lib.channels.find(c => c.id==d.id);
+	
+	if (channel.guild) {
+		channel.guild.setChannel(channel, undefined);
+	}
+	
+	
+	/*
+	var index = lib.channels.findIndex(c => c.id==d.id);
+	var channel = lib.channels[index]
+	lib.channels.splice(index, 1);
+	
+	var g = lib.guilds.find(g => g.id == d.guild_id);
+	if (g != undefined) {
+		if (d.type == constants.CHANNELS.CATEGORY) {
+			var i = g.channelCategories.findIndex(c => c.id==d.id);
+			g.channelCategories.splice(i, 1);
+		} else {
+			var i = g.channels.findIndex(c => c.id==d.id);
+			g.channels.splice(i, 1);
+		}
+	}
+	*/
 	
 	lib.events.emit('CHANNEL_DELETE', channel);
 })
 discord.events.on('CHANNEL_CREATE', (d) => {
-	var channel
+	var channel, cat
 	if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(d);
 	else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(d);
-	else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(d);
+	else if (d.type == constants.CHANNELS.CATEGORY) {channel = new iChannelCategory(d); cat = true; }
 	else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
-	else throw "oh no, a unknown type of channel was deleted! send penguin pic of this data: " + JSON.stringify(d);
+	else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
+	
+	/*
+	var g = lib.guilds.find(g => g.id == d.guild_id);
+	if (g != undefined) {
+		if (cat==true) g.channelCategories.push(channel)
+		else g.channels.push(channel)
+	}
+	*/
+	if (channel.guild) {
+		channel.guild.setChannel(channel);
+	}
 	
 	lib.events.emit('CHANNEL_CREATE', channel);
+})
+discord.events.on('CHANNEL_UPDATE', (d) => {
+	/*
+	var index = lib.channels.findIndex(c => c.id==d.id);
+	var channel = new iChannel(d)
+	lib.channels[index] = channel;
+	*/
+	
+	var channel = lib.channels.find(c => c.id==d.id);
+	
+	if (channel.guild) {
+		channel.guild.setChannel(channel, channel);
+	}
+	
+	lib.events.emit('CHANNEL_UPDATE', channel);
 })
 discord.events.on('GUILD_BAN_ADD', (d) => {
 	var gm = new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id))
@@ -232,6 +285,9 @@ discord.events.on('GUILD_UPDATE', (d) => {
 	// do shitty merge here
 	// probably will lead to inconsistencies, but blame discord for too many variances of information at this point
 	
+	console.log('asd:',d);
+	
+	/*
 	var stored = lib.guilds.find(g => g.id==d.id);
 	var raw={}
 	
@@ -242,6 +298,7 @@ discord.events.on('GUILD_UPDATE', (d) => {
 		if (raw[i]==undefined) raw[i] = d[i]
 	}
 	var guild = new iGuild(raw);
+	*/
 	
 	lib.events.emit('GUILD_UPDATE', guild);
 })

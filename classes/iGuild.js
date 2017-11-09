@@ -65,6 +65,7 @@ class iGuild extends iBase {
 			if (v.type == constants.CHANNELS.TEXT) this.channels.push(new iTextChannel(v, this))
 			else if (v.type == constants.CHANNELS.VOICE) this.channels.push(new iVoiceChannel(v, this))
 			else if (v.type == constants.CHANNELS.CATEGORY) this.channelCategories.push(new iChannelCategory(v, this))
+			else throw "OH NOOOOOOOOOOOOOOOOOO, UNKNOWN CHANNEL TYPE"
 		}
 	
 		// guild member stuff
@@ -78,7 +79,19 @@ class iGuild extends iBase {
 		//if (this.name == 'we hak tusk here') console.log('X:', this.name, this.id)
 		//if (this.name == 'that one server') console.log('Y:', this.name, this.id)
 	
-		
+		classHelper.setHiddenProperty(this, 'setChannel', function(channel, value) {
+			var index, array
+			if (channel.type == constants.CHANNELS.CATEGORY) array = this.channelCategories;
+			else array = this.channels;
+			index = array.findIndex(c => c.id==channel.id);
+			
+			
+			if (index == -1) array.push(channel); // new channel!
+			else {
+				if (value == undefined) array.splice(index, 1);
+				else array[index] = value;
+			}
+		})
 		
 		
 	}

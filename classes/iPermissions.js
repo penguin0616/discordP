@@ -1,24 +1,77 @@
 const classHelper = require('./classHelper.js');
 const iBase = require('./iBase.js');
 const PERMISSIONS = classHelper.constants().PERMISSIONS;
+const CHANNELS = classHelper.constants().CHANNELS;
+
+// i don't know how to handle permission bits
+// so some of this might looks familiar
+
+var typicalChannel = function(a) {
+	// ManageRoles appears to be ManagePermissions
+	a.KickMembers = true;
+	a.BanMembers = true;
+	a.Administrator = true;
+	a.ManageServer = true;
+	a.ChangeNickname = true;
+	a.ManageNicknames = true;
+	a.ManageEmojis = true;
+	a.ViewAuditLog = true;
+}
+	
 
 class iPermissions extends iBase {
-	constructor(raw) {
+	constructor(raw, superType) {
 		super(raw);
+		classHelper.setHiddenProperty(this, 'raw', raw || 0);
 		
-		// this might look familiar. 
-		this.raw = raw || 0;
+		var bigX = "";
+		var littleX = {};
+		
+		if (superType == CHANNELS.TEXT) {
+			bigX = 'VOICE';
+			typicalChannel(littleX);
+		} else if (superType == CHANNELS.VOICE) {
+			bigX = 'TEXT';
+			typicalChannel(littleX);
+		}
+		
+		
+		
+		
+		
+		
 		for (let type in PERMISSIONS) {
-			this[type] = {};
-			for (let permission in PERMISSIONS[type]) {
-				const bit = PERMISSIONS[type][permission];
-				
-				this[type][permission] = ((this.raw & bit) === bit)
-				
+			if (type != bigX) {
+				this[type] = {}
+				for (let permission in PERMISSIONS[type]) {
+					if (littleX[permission] != true) {
+						const bit = PERMISSIONS[type][permission];
+						Object.defineProperty(this[type], permission, {
+							enumerable: true,
+							get: () => (this.raw & bit) === bit,
+							set: (v) => v ? (this.raw |= bit) : (this.raw &= ~bit)
+						});
+					}
+				}
 			}
 		}
 		
+		/*
+		for (let type in PERMISSIONS) {
+			this[type] = {}
+			for (let permission in PERMISSIONS[type]) {
+				const bit = PERMISSIONS[type][permission];
+				Object.defineProperty(this[type], permission, {
+					enumerable: true,
+					get: () => (this.raw & bit) === bit,
+					set: (v) => v ? (this.raw |= bit) : (this.raw &= ~bit)
+				});
+			}
+		}
+		*/
 	}
+	
+	inspect() { return JSON.parse(JSON.stringify(this)); }
 }
 
 
