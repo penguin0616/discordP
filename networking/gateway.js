@@ -1,5 +1,5 @@
 const webSocket = require('ws');
-const pako = require('pako');
+const pako = require("../constants/pako/index.js");
 const classHelper = require('../classes/classHelper.js');
 const constants = classHelper.constants();
 const endpoints = classHelper.endpoints();
