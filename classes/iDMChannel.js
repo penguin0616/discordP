@@ -2,6 +2,7 @@ const classHelper = require('./classHelper.js');
 const iBase = require("./iBase.js");
 const iChannel = require("./iChannel.js");
 const iUser = require("./iUser.js");
+const iMessage = require("./iMessage.js"); // whoooooops
 
 
 class iDMChannel extends iChannel {
@@ -30,7 +31,6 @@ class iDMChannel extends iChannel {
 		var discord = classHelper.discord();
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.createMessage, {"channel.id": this.id})
-			console.log(url);
 			discord.http.post(
 				url,
 				JSON.stringify({
