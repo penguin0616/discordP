@@ -285,20 +285,9 @@ discord.events.on('GUILD_UPDATE', (d) => {
 	// do shitty merge here
 	// probably will lead to inconsistencies, but blame discord for too many variances of information at this point
 	
-	console.log('asd:',d);
+	var guild = new iGuild(d)
 	
-	/*
-	var stored = lib.guilds.find(g => g.id==d.id);
-	var raw={}
-	
-	for (var i in stored) {
-		raw[i] = stored[i]
-	}
-	for (var i in d) {
-		if (raw[i]==undefined) raw[i] = d[i]
-	}
-	var guild = new iGuild(raw);
-	*/
+	lib.guilds[lib.guilds.findIndex(g => g.id==d.id)] = guild;
 	
 	lib.events.emit('GUILD_UPDATE', guild);
 })
