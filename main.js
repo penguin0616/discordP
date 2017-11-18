@@ -1,3 +1,225 @@
+// old format wasn't that great.
+
+// events
+const eventEmitter = require("events");
+
+// constants
+const constants = require("./constants/constants.js");
+const endpoints = require("./constants/endpoints.js");
+const classHelper = require("./classes/classHelper.js");
+const gateway = require("./networking/gateway.js");
+
+// classes
+const iUser = require("./classes/iUser.js");
+const iGuildMember = require("./classes/iGuildMember.js");
+const iMessage = require("./classes/iMessage.js");
+const iGuild = require("./classes/iGuild.js");
+const iDMChannel = require("./classes/iDMChannel.js");
+const iTextChannel = require("./classes/iTextChannel.js");
+const iVoiceChannel = require("./classes/iVoiceChannel.js");
+const iChannelCategory = require("./classes/iChannelCategory.js");
+
+// this
+class discordp {
+	constructor(data) {
+		classHelper.newSession(this);
+		
+		classHelper.setHiddenProperty(this, 'internal', {
+			token: undefined,
+			events: new eventEmitter(),
+			messages: []
+		});
+		
+		// status
+		this.loggedIn = false;
+		this.connected = false;
+		
+		// events/debug
+		this.events = new eventEmitter();
+		if (data.debug==true) this.debug=true;
+		
+		// gateway
+		if (data.shardId) {
+			this.shardId = data.shardId;
+			if (data.shardCount==undefined) throw "Attempt to assign shardId with no 'shardCount'."
+			this.shardCount = data.shardCount;
+		} else {this.shardId = 1; this.shardCount = 1;}
+		this.gateway = new gateway(this, this.shardId, this.shardCount);
+		
+		// make categories
+		this.user = undefined;
+		this.guilds = [];
+		this.channels = [];
+		this.users = [];
+		this.friends = [];
+		this.blocked = [];
+		this.notes = [];
+		
+		setupGateway(this);
+	}
+
+	connect(login) {
+		if (this.loggedIn==true) throw "Attempted to login while already successfully logged in.";
+		var prom = new Promise((resolve, reject) => {
+			if (login.token != undefined) return resolve(JSON.stringify(login))
+			discord.http.post(endpoints.login, JSON.stringify(login), function(error, response, rawData) {
+				if (error || response.statusCode!=200) return reject(error);
+				return resolve(rawData);
+			})
+		})
+		prom.then((raw) => {
+			let data = JSON.parse(raw);
+			if (data.token == undefined) throw "Failed to login to Discord.";
+			this.internal.token = data.token;
+			this.loggedIn = true;
+		})
+		prom.catch((e) => {throw "Failed to login to Discord."})
+	}
+}
+
+function setupGateway(session) {
+	var internal = session.internal;
+	
+	var iEvents = internal.events
+	var eEvents = session.events;
+	
+	iEvents.on('READY', (e) => {
+		if (session.debug) console.log("Got ready event!");
+		
+		// run heartbeat
+		setInterval(function() {
+			session.gateway.ping();
+		}, session.gateway.heartbeat_interval)
+		
+		//console.log(this);
+		
+		// user
+		if (e.user.bot==true) internal.token = "Bot " + internal.token;
+		
+		session.user = new iUser(e.user);
+		delete e.user;
+		
+		// guilds
+		for (var index in e.guilds) {
+			var rawGuild = e.guilds[index];
+			session.guilds.push(new iGuild(rawGuild));
+		}
+		
+		delete e.guilds;
+		
+		
+		// relationships
+		for (var index in e.relationships) {
+			var relation = e.relationships[index];
+			if (relation.type == constants.RELATIONSHIPS.FRIEND) { session.friends.push(new iUser(relation.user)); }
+			else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(relation.user)); }
+			else { throw "unknown relationship found"; }
+		}
+		delete e.relationships;
+		
+		// notes
+		for (var id in e.notes) {
+			var note = e.notes[id];
+			session.notes.push({id: id, note: note})
+		}
+		delete e.notes;
+		
+		// experiments
+		delete e.experiments;
+		
+		// friend_sugggestion_count
+		delete e.friend_suggestion_count;
+		
+		// connected_accounts
+		delete e.connected_accounts;
+		
+		// analytics_token
+		delete e.analytics_token;
+		
+		// _trace
+		delete e._trace;
+		
+		// read_state
+		delete e.read_state;
+		
+		// session_id
+		delete e.session_id;
+		
+		// tutorial
+		delete e.tutorial;
+		
+		// presences
+		delete e.presences; // from friends
+		
+		// v
+		delete e.v; // version of gateway/api/whatever
+		
+		// user_settings
+		delete e.user_settings;
+		
+		// user_guild_settings
+		delete e.user_guild_settings;
+		
+		// private_channels
+		for (var index in e.private_channels) {
+			var channel = e.private_channels[index]
+			if (channel.type == constants.CHANNELS.DM || channel.type == constants.CHANNELS.GROUP_DM) { // dm / group dm
+				session.channels.push(new iDMChannel(channel));
+			} else throw 'unknown private_channel type found'
+		}
+		delete e.private_channels;
+		session.events.emit('GATEWAY_READY');
+	})
+}
+
+
+
+
+
+
+
+
+module.exports = discordp;
+/*
+if (discord.loggedIn) return; // already logged in
+	
+	const prom = new Promise((resolve, reject) => {
+		if (info.token != undefined) {
+			return resolve(JSON.stringify(info))
+		}
+		discord.http.post(discord.endpoints.login, JSON.stringify(info), function(error, response, rawData) {
+			if (error) return reject(error);
+			console.log(rawData);
+			if (response.statusCode != 200) return reject('Failed to login to discord');
+			return resolve(rawData);
+		})
+	})
+	prom.then((d) => {
+		let data = JSON.parse(d);
+		if (data.token) {
+			discord.token = data.token;
+			discord.loggedIn = true;
+			lib.events.emit('LOGIN_SUCCESS');
+			discord.gateway = new gateway(discord, 1, 1);
+			return;
+		}
+		lib.events.emit('LOGIN_FAIL', "INVALID LOGIN INFO");
+	})
+	prom.catch((e) => {
+		lib.events.emit('LOGIN_FAIL', "UNABLE TO CONNECT TO DISCORD");
+	})
+*/
+
+
+
+
+
+
+
+
+
+
+/*
 var lib = {}
 
 // discord
@@ -201,14 +423,6 @@ discord.events.on('GUILD_MEMBER_UPDATE', (d) => {
 	lib.events.emit('GUILD_MEMBER_UPDATE', gm);
 })
 discord.events.on('CHANNEL_DELETE', (d) => {
-	/*
-	var channel
-	if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(d);
-	else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(d);
-	else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(d);
-	else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
-	else throw "oh no, a unknown type of channel was deleted! send penguin pic of this data: " + JSON.stringify(d);
-	*/
 	
 	var channel = lib.channels.find(c => c.id==d.id);
 	
@@ -216,23 +430,7 @@ discord.events.on('CHANNEL_DELETE', (d) => {
 		channel.guild.setChannel(channel, undefined);
 	}
 	
-	
-	/*
-	var index = lib.channels.findIndex(c => c.id==d.id);
-	var channel = lib.channels[index]
-	lib.channels.splice(index, 1);
-	
-	var g = lib.guilds.find(g => g.id == d.guild_id);
-	if (g != undefined) {
-		if (d.type == constants.CHANNELS.CATEGORY) {
-			var i = g.channelCategories.findIndex(c => c.id==d.id);
-			g.channelCategories.splice(i, 1);
-		} else {
-			var i = g.channels.findIndex(c => c.id==d.id);
-			g.channels.splice(i, 1);
-		}
-	}
-	*/
+
 	
 	lib.events.emit('CHANNEL_DELETE', channel);
 })
@@ -244,13 +442,6 @@ discord.events.on('CHANNEL_CREATE', (d) => {
 	else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
 	else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
 	
-	/*
-	var g = lib.guilds.find(g => g.id == d.guild_id);
-	if (g != undefined) {
-		if (cat==true) g.channelCategories.push(channel)
-		else g.channels.push(channel)
-	}
-	*/
 	if (channel.guild) {
 		channel.guild.setChannel(channel);
 	}
@@ -258,11 +449,6 @@ discord.events.on('CHANNEL_CREATE', (d) => {
 	lib.events.emit('CHANNEL_CREATE', channel);
 })
 discord.events.on('CHANNEL_UPDATE', (d) => {
-	/*
-	var index = lib.channels.findIndex(c => c.id==d.id);
-	var channel = new iChannel(d)
-	lib.channels[index] = channel;
-	*/
 	
 	var channel = lib.channels.find(c => c.id==d.id);
 	
@@ -321,8 +507,6 @@ discord.events.on('VOICE_STATE_UPDATE', (data) => {
 		console.log('Someone left a voice call.');
 		return;
 	}
-	
-	//console.log(data);
 })
 
 
@@ -344,7 +528,7 @@ discord.events.on('ANY', (name, d) => {
 			return lib.events.emit(name, new iUser(d));
 		}
 		
-		console.log('caught ANY', name, d);
+		console.log('caught ANY', name, d); // will probably add support later for whatever this is
 		lib.events.emit(name, d);
 	}
 	
@@ -384,7 +568,6 @@ lib.connect = function(info) {
 		}
 		discord.http.post(discord.endpoints.login, JSON.stringify(info), function(error, response, rawData) {
 			if (error) return reject(error);
-			console.log(rawData);
 			if (response.statusCode != 200) return reject('Failed to login to discord');
 			return resolve(rawData);
 		})
@@ -415,6 +598,7 @@ lib.discord = function() { return discord }
 
 
 module.exports = lib;
+*/
 
 
 

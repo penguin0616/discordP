@@ -1,8 +1,8 @@
-module.exports.discord = function() {
-	return require("../main.js").discord();
+module.exports.discord = function(thingy) {
+	//return require("../main.js").discord();
 }
 module.exports.lib = function() {
-	return require("../main.js");
+	//return require("../main.js");
 }
 
 module.exports.constants = function() {
@@ -52,3 +52,23 @@ module.exports.formatURL = function(rawUrl, formats) {
 	
 	return rawUrl
 }
+
+var sessions = [];
+
+module.exports.newSession = function(obj) {
+	// new discord session created
+	sessions.push(obj);
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -35,7 +35,6 @@ class gateway {
 			_this.connected = true;
 		})
 		
-		
 		ws.on('message', function(rawData) {
 			const isBlob = (rawData instanceof Buffer || rawData instanceof ArrayBuffer);
 			if (isBlob) { // took a while to figure out that the "massive buffer" was actually the 'READY' dispatch
@@ -48,7 +47,7 @@ class gateway {
 				var identify = {
 					"op": constants.OPCODE.IDENTIFY,
 					"d": {
-						"token": discord.token,
+						"token": discord.internal.token,
 						"properties": {
 							"$os": 'win32',
 							"$browser": "discordP",
@@ -63,25 +62,28 @@ class gateway {
 				_this.send(identify);
 				_this.heartbeat_interval = data.d.heartbeat_interval
 				
-				console.log('Identified to Discord');
+				if (discord.debug) console.log('Identified to Discord');
 			} else if (data.op == constants.OPCODE.HEARTBEAT_ACK) {
 				// they ack'd our heartbeat ping
 				return;
+			} else if (data.op == constants.OPCODE.INVALID_SESSION) {
+				throw "Attempted to connect to Discord gateway with an invalid session. Wrong token?";
+				
 			} else if (data.op == constants.OPCODE.HEARTBEAT) {
 				_this.ping();
 			} else if (data.op == constants.OPCODE.DISPATCH) { // dispatch
-				discord.events.emit('ANY', data.t, data.d);
-				discord.events.emit(data.t, data.d);
+				discord.internal.events.emit('ANY', data.t, data.d);
+				discord.internal.events.emit(data.t, data.d);
 			}
 		})
 		
 		ws.on("close", function(code, data) {
 			_this.connected = false;
-			console.log('Close:', code, data)
+			if (discord.debug) console.log('Close:', code, data)
 		})
 		ws.on("error", function(code, data) {
 			_this.connected = false;
-			console.log('Error:', code, data)
+			if (discord.debug) console.log('Error:', code, data)
 		})
 		
 		this.socket = ws;
