@@ -1,4 +1,5 @@
 // old format wasn't that great.
+// if something breaks, blame Dark Overlord#9351
 
 // events
 const eventEmitter = require("events");
@@ -36,7 +37,7 @@ class discordp {
 		
 		// events/debug
 		this.events = new eventEmitter();
-		if (data.debug==true) this.debug=true;
+		if (data.debug==true) {this.debug=true; console.log("Running a Discordp session in debug mode!");}
 		
 		// gateway
 		if (data.shardId) {
@@ -91,18 +92,18 @@ function setupGateway(session) {
 			session.gateway.ping();
 		}, session.gateway.heartbeat_interval)
 		
-		//console.log(this);
-		
 		// user
 		if (e.user.bot==true) internal.token = "Bot " + internal.token;
 		
-		session.user = new iUser(e.user);
+		
+		
+		session.user = new iUser(session, e.user);
 		delete e.user;
 		
 		// guilds
 		for (var index in e.guilds) {
 			var rawGuild = e.guilds[index];
-			session.guilds.push(new iGuild(rawGuild));
+			session.guilds.push(new iGuild(session, rawGuild));
 		}
 		
 		delete e.guilds;
@@ -111,8 +112,8 @@ function setupGateway(session) {
 		// relationships
 		for (var index in e.relationships) {
 			var relation = e.relationships[index];
-			if (relation.type == constants.RELATIONSHIPS.FRIEND) { session.friends.push(new iUser(relation.user)); }
-			else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(relation.user)); }
+			if (relation.type == constants.RELATIONSHIPS.FRIEND) { session.friends.push(new iUser(session, relation.user)); }
+			else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(session, relation.user)); }
 			else { throw "unknown relationship found"; }
 		}
 		delete e.relationships;
@@ -164,7 +165,7 @@ function setupGateway(session) {
 		for (var index in e.private_channels) {
 			var channel = e.private_channels[index]
 			if (channel.type == constants.CHANNELS.DM || channel.type == constants.CHANNELS.GROUP_DM) { // dm / group dm
-				session.channels.push(new iDMChannel(channel));
+				session.channels.push(new iDMChannel(session, channel));
 			} else throw 'unknown private_channel type found'
 		}
 		delete e.private_channels;

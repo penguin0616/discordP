@@ -6,14 +6,13 @@ const iMessage = require("./iMessage.js"); // whoooooops
 
 
 class iDMChannel extends iChannel {
-	constructor(data) {
-		super(data);
+	constructor(discord, data) {
+		super(discord, data);
 		
-		delete this.recipients;
 		this.recipients = [];
 		for (var i in data.recipients) {
 			var rawUser = data.recipients[i];
-			var user = new iUser(rawUser);
+			var user = new iUser(this.discord, rawUser);
 			this.recipients.push(user);
 		}
 		
@@ -28,7 +27,7 @@ class iDMChannel extends iChannel {
 	}
 	
 	sendMessage(content, tts, embed) {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.createMessage, {"channel.id": this.id})
 			discord.http.post(
@@ -42,7 +41,7 @@ class iDMChannel extends iChannel {
 				}),
 				function(error, response, rawData) {
 					if (error) return reject(error);
-					if (response.statusCode==200) return resolve(new iMessage(JSON.parse(rawData)))
+					if (response.statusCode==200) return resolve(new iMessage(discord, JSON.parse(rawData)))
 					reject('Unable to send message');
 				}
 			)

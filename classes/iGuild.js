@@ -35,8 +35,8 @@ const iChannelCategory = require("./iChannelCategory.js");
 */
 
 class iGuild extends iBase {
-	constructor(data) {
-		super(data)
+	constructor(discord, data) {
+		super(discord, data)
 		
 		//classHelper.setHiddenProperty(this, 'data.members', data.members);
 		
@@ -53,7 +53,7 @@ class iGuild extends iBase {
 		this.roles = [];
 		for (var i in data.roles) {
 			var v = data.roles[i];
-			var role = new iRole(v);
+			var role = new iRole(this.discord, v);
 			this.roles.push(role);
 		}
 		
@@ -62,9 +62,9 @@ class iGuild extends iBase {
 		this.channelCategories = [];
 		for (var i in data.channels) {
 			var v = data.channels[i];
-			if (v.type == constants.CHANNELS.TEXT) this.channels.push(new iTextChannel(v, this))
-			else if (v.type == constants.CHANNELS.VOICE) this.channels.push(new iVoiceChannel(v, this))
-			else if (v.type == constants.CHANNELS.CATEGORY) this.channelCategories.push(new iChannelCategory(v, this))
+			if (v.type == constants.CHANNELS.TEXT) this.channels.push(new iTextChannel(this.discord, v, this))
+			else if (v.type == constants.CHANNELS.VOICE) this.channels.push(new iVoiceChannel(this.discord, v, this))
+			else if (v.type == constants.CHANNELS.CATEGORY) this.channelCategories.push(new iChannelCategory(this.discord, v, this))
 			else throw "OH NOOOOOOOOOOOOOOOOOO, UNKNOWN CHANNEL TYPE"
 		}
 	
@@ -72,12 +72,9 @@ class iGuild extends iBase {
 		this.members = [];
 		for (var i in data.members) {
 			var v = data.members[i];
-			var member = new iGuildMember(v, this);
+			var member = new iGuildMember(this.discord, v, this);
 			this.members.push(member);
 		}
-		
-		//if (this.name == 'we hak tusk here') console.log('X:', this.name, this.id)
-		//if (this.name == 'that one server') console.log('Y:', this.name, this.id)
 	
 		classHelper.setHiddenProperty(this, 'setChannel', function(channel, value) {
 			var index, array

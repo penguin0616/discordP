@@ -23,12 +23,10 @@ const iUser = require('./iUser.js');
 */
 
 class iGuildMember extends iUser {
-	constructor(data, guild) {
-		super(data)
+	constructor(discord, data, guild) {
+		super(discord, data)
 		if (guild == undefined) throw "attempt to construct iGuildMember with no reference to guild"
-		
 		classHelper.setHiddenProperty(this, 'raw_roles', data.roles);
-		delete this.roles;
 		this.roles = [];
 		for (var i in data.roles) {
 			var id = data.roles[i];
@@ -37,16 +35,16 @@ class iGuildMember extends iUser {
 		}
 		
 		this.nick = (this.nick != undefined && this.nick) || null
-		
 		if (this.guild_id==undefined) this.guild_id = guild.id;
+		
 	}
 	
 	get guild() {
-		return classHelper.lib().guilds.find(g => g.id == this.guild_id)
+		return this.discord.guilds.find(g => g.id == this.guild_id)
 	}
 	
 	setNickname(nick) {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = discord.endpoints.modifyGuildMember;
 			if (discord.user.id == this.id) url = discord.endpoints.modifyCurrentUsersNick
@@ -60,7 +58,6 @@ class iGuildMember extends iUser {
 				}),
 				function(error, response, rawData) {
 					if (error) return reject(error);
-					console.log(response.statusCode);
 					if (response.statusCode==204 || response.statusCode==200) return resolve();
 					reject('Unable to set nickname');
 				}

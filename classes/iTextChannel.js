@@ -7,7 +7,7 @@ const iPermissions = require("./iPermissions.js");
 
 
 class iTextChannel extends iChannel {
-	constructor(data, guild) {
+	constructor(discord, data, guild) {
 		for (var i in data.permission_overwrites) {
 			var v = data.permission_overwrites[i];
 			
@@ -15,14 +15,14 @@ class iTextChannel extends iChannel {
 			v.allow = new iPermissions(v.allow, data.type);
 		}
 		
-		super(data, guild);
-		var lib = classHelper.lib();
+		super(discord, data, guild);
+		var lib = this.discord;
 		if (lib.channels.find(c => c.id==this.id)==undefined) lib.channels.push(this);
 	}
 	
 	
 	sendMessage(content, tts, embed) {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.createMessage, {"channel.id": this.id})
 			
@@ -38,7 +38,7 @@ class iTextChannel extends iChannel {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					var data = JSON.parse(rawData);
-					if (response.statusCode==200) return resolve(new iMessage(data))
+					if (response.statusCode==200) return resolve(new iMessage(discord, data))
 					reject('Unable to send message: ' + data.message);
 				}
 			)

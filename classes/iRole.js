@@ -3,8 +3,8 @@ const iBase = require("./iBase.js");
 const iPermissions = require("./iPermissions.js");
 
 class iRole extends iBase {
-	constructor(data) {
-		super(data);
+	constructor(discord, data) {
+		super(discord, data);
 		
 		data.permissions = new iPermissions(data.permissions)
 		

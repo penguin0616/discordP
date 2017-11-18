@@ -2,47 +2,42 @@ const classHelper = require('./classHelper.js');
 const iBase = require("./iBase.js");
 
 class iUser extends iBase {
-	constructor(data) {
-		super(data);
+	constructor(discord, data) {
+		super(discord, data);
 		
 		if (data.user) {
 			classHelper.setHiddenProperty(this, 'raw_user', data.user);
 			for (var i in data.user) this[i] = data.user[i];
 			delete data.user;
 		}
-		
 		for (var index in data) {
 			var value = data[index]
 			this[index] = value;
 		}
-		
 		if (this.username == undefined && this.name != undefined) this.username = this.name;
-		
-		if (classHelper.lib().users.find(u => u.id==this.id)==undefined) {
-			classHelper.lib().users.push(this);
+		if (this.discord.users.find(u => u.id==this.id)==undefined) {
+			this.discord.users.push(this);
 		}
-		
-		
 	}
 
 	get fullName() { return `${this.username}#${this.discriminator}` }
 	
 	get isFriend() {
-		if (classHelper.lib().friends.find(u => u.id == this.id)) return true;
+		if (this.discord.friends.find(u => u.id == this.id)) return true;
 		return false;
 	}
 	
 	get isBlocked() {
-		if (classHelper.lib().blocked.find(u => u.id == this.id)) return true;
+		if (this.discord.blocked.find(u => u.id == this.id)) return true;
 		return false;
 	}
 	
 	get note() {
-		return classHelper.lib().notes.find(n => n.id==this.id);
+		return this.discord.notes.find(n => n.id==this.id);
 	}
 	
 	openDM() {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var data = {
 				recipient_id: this.id
@@ -58,7 +53,7 @@ class iUser extends iBase {
 						return reject(data.message)
 					}
 					const iDMChannel = require('./iDMChannel.js')
-					var dm = new iDMChannel(data);
+					var dm = new iDMChannel(discord, data);
 					resolve(dm);
 				}
 			)
@@ -66,12 +61,12 @@ class iUser extends iBase {
 	}
 	
 	isMemberOf(guild) {
-		var lib = classHelper.lib();
+		var lib = this.discord;
 		if (classHelper.isSafe(guild)) return lib.guilds.find(g => g.id==guild.id);
 	}
 	
 	edit(currentPassword, username, avatar, email, newPassword) {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		var user = discord.user;
 		username = username || user.username;
 		email = email || user.email;
@@ -105,7 +100,7 @@ class iUser extends iBase {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					if (response.statusCode==200) {
-						resolve(new iUser(JSON.parse(rawData)));
+						resolve(new iUser(JSON.parse(discord, rawData)));
 					} else reject("Failed to update user.");
 				}
 			)
@@ -113,8 +108,8 @@ class iUser extends iBase {
 	}
 	
 	setAvatar(avatar, currentPassword) {
-		var discord = classHelper.discord();
-		if (discord.user.bot==true && currentPassword==undefined) return reject('setAvatar arg#2 needs password.');
+		var discord = this.discord;
+		if (discord.user.bot != true && currentPassword==undefined) return reject('setAvatar arg#2 needs password.');
 		return this.edit(currentPassword, undefined, avatar, undefined, undefined);
 	}
 	
@@ -136,7 +131,7 @@ class iUser extends iBase {
 				"afk": afk
 			}
 		}
-		classHelper.discord().gateway.send(data)
+		this.discord.gateway.send(data)
 	}
 	
 }

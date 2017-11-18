@@ -36,10 +36,10 @@ const iUser = require("./iUser.js");
 }
 */
 class iMessage extends iBase {
-	constructor(data) {
-		super(data);
+	constructor(discord, data) {
+		super(discord, data);
 		
-		this.author = new iUser(data.author);
+		this.author = new iUser(discord, data.author);
 		delete data.author;
 		
 		if (data.deleted==undefined) data.deleted=false;
@@ -48,16 +48,14 @@ class iMessage extends iBase {
 			var value = data[index]
 			this[index] = value
 		}
-		
-		Object.preventExtensions(this)
 	}
 	
 	get channel() {
-		return classHelper.lib().channels.find(c => c.id == this.channel_id);
+		return this.discord.channels.find(c => c.id == this.channel_id);
 	}
 	
 	delete() {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.manageMessage, {"channel.id": this.channel_id, "message.id": this.id})
 			discord.http.delete(
@@ -72,7 +70,7 @@ class iMessage extends iBase {
 	}
 	
 	pin() {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.channelPin, {"channel.id": this.channel_id, "message.id": this.id})
 			
@@ -88,7 +86,7 @@ class iMessage extends iBase {
 	}
 	
 	unpin() {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.channelPin, {"channel.id": this.channel_id, "message.id": this.id})
 			
@@ -104,7 +102,7 @@ class iMessage extends iBase {
 	}
 	
 	edit(content, embed) {
-		var discord = classHelper.discord();
+		var discord = this.discord;
 		
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.manageMessage, {"channel.id": this.channel_id, "message.id": this.id});
@@ -115,7 +113,7 @@ class iMessage extends iBase {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					
-					if (response.statusCode==200) return resolve(new iMessage(JSON.parse(rawData)))
+					if (response.statusCode==200) return resolve(new iMessage(discord, JSON.parse(rawData)))
 					
 					reject('edit failed for unknown reason');
 				}

@@ -4,10 +4,10 @@ const iChannel = require("./iChannel.js");
 
 
 class iChannelCategory extends iChannel {
-	constructor(data, guild) {
-		super(data, guild);
+	constructor(discord, data, guild) {
+		super(discord, data, guild);
 		
-		var lib = classHelper.lib();
+		var lib = this.discord;
 		if (lib.channels.find(c => c.id==this.id)==undefined) lib.channels.push(this);
 	}
 }
