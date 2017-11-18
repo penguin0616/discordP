@@ -43,7 +43,6 @@ class discordp {
 			if (data.shardCount==undefined) throw "Attempt to assign shardId with no 'shardCount'."
 			this.shardCount = data.shardCount;
 		} else {this.shardId = 1; this.shardCount = 1;}
-		this.gateway = new gateway(this, this.shardId, this.shardCount);
 		
 		// make categories
 		this.user = undefined;
@@ -54,14 +53,15 @@ class discordp {
 		this.blocked = [];
 		this.notes = [];
 		
-		setupGateway(this);
+		this.http = require("./networking/sendRequests.js")();
+		this.endpoints = require("./constants/endpoints.js");
 	}
 
 	connect(login) {
 		if (this.loggedIn==true) throw "Attempted to login while already successfully logged in.";
 		var prom = new Promise((resolve, reject) => {
 			if (login.token != undefined) return resolve(JSON.stringify(login))
-			discord.http.post(endpoints.login, JSON.stringify(login), function(error, response, rawData) {
+			this.http.post(endpoints.login, JSON.stringify(login), function(error, response, rawData) {
 				if (error || response.statusCode!=200) return reject(error);
 				return resolve(rawData);
 			})
@@ -71,14 +71,19 @@ class discordp {
 			if (data.token == undefined) throw "Failed to login to Discord.";
 			this.internal.token = data.token;
 			this.loggedIn = true;
+			this.http.updateToken(this.internal.token);
+			if (this.debug) console.log("Login returned:", data);
+			
+			setupGateway(this);
 		})
 		prom.catch((e) => {throw "Failed to login to Discord."})
 	}
 }
 
 function setupGateway(session) {
-	var internal = session.internal;
+	session.gateway = new gateway(session, session.shardId, session.shardCount);
 	
+	var internal = session.internal;
 	var iEvents = internal.events;
 	var eEvents = session.events;
 	
@@ -92,7 +97,7 @@ function setupGateway(session) {
 		
 		// user
 		if (e.user.bot==true) internal.token = "Bot " + internal.token;
-		
+		session.http.updateToken(internal.token);
 		
 		
 		session.user = new iUser(session, e.user);
@@ -171,30 +176,30 @@ function setupGateway(session) {
 	})
 	
 	iEvents.on('MESSAGE_CREATE', (m) => {
-		var msg = new iMessage(m);
+		var msg = new iMessage(session, m);
 		
-		discord.messages[msg.id]={edits:[]}
-		discord.messages[msg.id].original = msg;
-		discord.messages[msg.id].current = msg;
+		internal.messages[msg.id]={edits:[]}
+		internal.messages[msg.id].original = msg;
+		internal.messages[msg.id].current = msg;
 		
 		eEvents.emit('MESSAGE_CREATE', msg);
 	})
 	iEvents.on('GUILD_MEMBER_ADD', (m) => {
-		var gm = new iGuildMember(m, lib.guilds.find(g => g.id==m.guild_id));
+		var gm = new iGuildMember(session, m, session.guilds.find(g => g.id==m.guild_id));
 		eEvents.emit('GUILD_MEMBER_ADD', gm);
 	})
 	iEvents.on('GUILD_MEMBER_REMOVE', (m) => {
-		var gm = new iGuildMember(m, lib.guilds.find(g => g.id==m.guild_id));
+		var gm = new iGuildMember(session, m, session.guilds.find(g => g.id==m.guild_id));
 		eEvents.emit('GUILD_MEMBER_REMOVE', gm);
 	})
 	iEvents.on('MESSAGE_UPDATE', (m) => {
 		if (m.author==undefined) return; // embed
-		var msg = new iMessage(m);
-		var info = discord.messages[msg.id]
+		var msg = new iMessage(session, m);
+		var info = internal.messages[msg.id]
 		if (info==undefined) { // created before we could log it
-			discord.messages[msg.id]={edits:[]}
-			discord.messages[msg.id].original = msg;
-			discord.messages[msg.id].current = msg;
+			internal.messages[msg.id]={edits:[]}
+			internal.messages[msg.id].original = msg;
+			internal.messages[msg.id].current = msg;
 			return;
 		}
 		var last = info.edits[info.edits.length]
@@ -210,7 +215,7 @@ function setupGateway(session) {
 		info.current = msg;
 	})
 	iEvents.on('MESSAGE_DELETE', (d) => {
-		var info = discord.messages[d.id]
+		var info = internal.messages[d.id]
 		if (info==undefined) return;
 		var msg = info.edits[info.edits.length-1]
 		if (msg == undefined) msg = info.original;
@@ -221,7 +226,7 @@ function setupGateway(session) {
 		var msgs = [];
 		for (var index in d.ids) {
 			var id = d.ids[index];
-			var info = discord.messages[id];
+			var info = internal.messages[id];
 			if (info) {
 				var msg = info.current;
 				msg.deleted = true;
@@ -231,12 +236,12 @@ function setupGateway(session) {
 		eEvents.emit('MESSAGE_DELETE_BULK', msgs);
 	})
 	iEvents.on('GUILD_MEMBER_UPDATE', (d) => {
-		var gm = new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id));
+		var gm = new iGuildMember(session, d, session.guilds.find(g => g.id==d.guild_id));
 		eEvents.emit('GUILD_MEMBER_UPDATE', gm);
 	})
 	iEvents.on('CHANNEL_DELETE', (d) => {
 		
-		var channel = lib.channels.find(c => c.id==d.id);
+		var channel = session.channels.find(c => c.id==d.id);
 		
 		if (channel.guild) {
 			channel.guild.setChannel(channel, undefined);
@@ -248,10 +253,10 @@ function setupGateway(session) {
 	})
 	iEvents.on('CHANNEL_CREATE', (d) => {
 		var channel, cat
-		if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(d);
-		else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(d);
-		else if (d.type == constants.CHANNELS.CATEGORY) {channel = new iChannelCategory(d); cat = true; }
-		else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
+		if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(session, d);
+		else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(session, d);
+		else if (d.type == constants.CHANNELS.CATEGORY) {channel = new iChannelCategory(session, d); cat = true; }
+		else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(session, d); 
 		else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
 		
 		if (channel.guild) {
@@ -262,7 +267,7 @@ function setupGateway(session) {
 	})
 	iEvents.on('CHANNEL_UPDATE', (d) => {
 		
-		var channel = lib.channels.find(c => c.id==d.id);
+		var channel = session.channels.find(c => c.id==d.id);
 		
 		if (channel.guild) {
 			channel.guild.setChannel(channel, channel);
@@ -271,11 +276,11 @@ function setupGateway(session) {
 		eEvents.emit('CHANNEL_UPDATE', channel);
 	})
 	iEvents.on('GUILD_BAN_ADD', (d) => {
-		var gm = new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id))
+		var gm = new iGuildMember(session, d, session.guilds.find(g => g.id==d.guild_id))
 		eEvents.emit('GUILD_BAN_ADD', gm);
 	})
 	iEvents.on('GUILD_BAN_REMOVE', (d) => {
-		var gm = new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id))
+		var gm = new iGuildMember(session, d, session.guilds.find(g => g.id==d.guild_id))
 		eEvents.emit('GUILD_BAN_REMOVE', gm);
 	})
 	iEvents.on('GUILD_UPDATE', (d) => {
@@ -283,33 +288,32 @@ function setupGateway(session) {
 		// do shitty merge here
 		// probably will lead to inconsistencies, but blame discord for too many variances of information at this point
 		
-		var guild = new iGuild(d)
+		var guild = new iGuild(session, d)
 		
-		lib.guilds[lib.guilds.findIndex(g => g.id==d.id)] = guild;
+		session.guilds[session.guilds.findIndex(g => g.id==d.id)] = guild;
 		
 		eEvents.emit('GUILD_UPDATE', guild);
 	})
 	iEvents.on('GUILD_CREATE', (d) => {
-		var guild = new iGuild(d);
-		var index = lib.guilds.findIndex(g => g.id==d.id);
-		lib.guilds[index] = guild;
+		var guild = new iGuild(session, d);
+		var index = session.guilds.findIndex(g => g.id==d.id);
+		session.guilds[index] = guild;
 		
 		eEvents.emit('GUILD_CREATE', guild) // seems ok
 	})
 	iEvents.on('GUILD_DELETE', (d) => {
-		var index = lib.guilds.findIndex(g => g.id==d.id);
-		var guild = lib.guilds[index];
-		lib.guilds.splice(index, 1);
+		var index = session.guilds.findIndex(g => g.id==d.id);
+		var guild = session.guilds[index];
+		session.guilds.splice(index, 1);
 		eEvents.emit('GUILD_DELETE', guild) // seems ok
 	})
 	iEvents.on('USER_UPDATE', (d) => {
-		if (d.id == lib.user.id) {
-			var index = lib.users.findIndex(u => u.id==lib.user.id);
+		if (d.id == session.user.id) {
+			var index = session.users.findIndex(u => u.id==session.user.id);
 			
-			var user = new iUser(d);
-			lib.user = user;
-			discord.user = user;
-			lib.users[index] = user;
+			var user = new iUser(session, d);
+			session.user = user;
+			session.users[index] = user;
 			return;
 		}
 	})
@@ -327,17 +331,17 @@ function setupGateway(session) {
 	iEvents.on('ANY', (name, d) => {
 		//eEvents.emit('ANY', name, d);
 		
-		if (discord.events.listenerCount(name)==0) { // i'm not listening to the event, so just chuck it out (after some formatting?).
+		if (iEvents.listenerCount(name)==0) { // i'm not listening to the event, so just chuck it out (after some formatting?).
 			
 			if (d.user != undefined && d.user.id != undefined) { // something with a user.
 				// guildmember?
 				if (d.guild_id != undefined) {
-					return eEvents.emit(name, new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id)))
+					return eEvents.emit(name, new iGuildMember(session, d, session.guilds.find(g => g.id==d.guild_id)))
 				}
 				
 				
 				// nothin? probably useless then
-				return eEvents.emit(name, new iUser(d));
+				return eEvents.emit(name, new iUser(session, d));
 			}
 			
 			if (session.debug) console.log('caught ANY', name, d); // will probably add support later for whatever this is
