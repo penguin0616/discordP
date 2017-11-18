@@ -23,8 +23,6 @@ const iChannelCategory = require("./classes/iChannelCategory.js");
 // this
 class discordp {
 	constructor(data) {
-		classHelper.newSession(this);
-		
 		classHelper.setHiddenProperty(this, 'internal', {
 			token: undefined,
 			events: new eventEmitter(),
@@ -81,7 +79,7 @@ class discordp {
 function setupGateway(session) {
 	var internal = session.internal;
 	
-	var iEvents = internal.events
+	var iEvents = internal.events;
 	var eEvents = session.events;
 	
 	iEvents.on('READY', (e) => {
@@ -169,7 +167,205 @@ function setupGateway(session) {
 			} else throw 'unknown private_channel type found'
 		}
 		delete e.private_channels;
-		session.events.emit('GATEWAY_READY');
+		eEvents.emit('GATEWAY_READY');
+	})
+	
+	iEvents.on('MESSAGE_CREATE', (m) => {
+		var msg = new iMessage(m);
+		
+		discord.messages[msg.id]={edits:[]}
+		discord.messages[msg.id].original = msg;
+		discord.messages[msg.id].current = msg;
+		
+		eEvents.emit('MESSAGE_CREATE', msg);
+	})
+	iEvents.on('GUILD_MEMBER_ADD', (m) => {
+		var gm = new iGuildMember(m, lib.guilds.find(g => g.id==m.guild_id));
+		eEvents.emit('GUILD_MEMBER_ADD', gm);
+	})
+	iEvents.on('GUILD_MEMBER_REMOVE', (m) => {
+		var gm = new iGuildMember(m, lib.guilds.find(g => g.id==m.guild_id));
+		eEvents.emit('GUILD_MEMBER_REMOVE', gm);
+	})
+	iEvents.on('MESSAGE_UPDATE', (m) => {
+		if (m.author==undefined) return; // embed
+		var msg = new iMessage(m);
+		var info = discord.messages[msg.id]
+		if (info==undefined) { // created before we could log it
+			discord.messages[msg.id]={edits:[]}
+			discord.messages[msg.id].original = msg;
+			discord.messages[msg.id].current = msg;
+			return;
+		}
+		var last = info.edits[info.edits.length]
+		var last2 = info.edits[info.edits.length - 1]
+		if (last == undefined && last2 == undefined) {
+			last = msg;
+			last2 = info.original;
+		} else if (last == undefined && last2 != undefined) {
+			last = msg;
+		}
+		if (last.pinned != last2.pinned) return; // just a pin
+		eEvents.emit('MESSAGE_EDIT', last, last2);
+		info.current = msg;
+	})
+	iEvents.on('MESSAGE_DELETE', (d) => {
+		var info = discord.messages[d.id]
+		if (info==undefined) return;
+		var msg = info.edits[info.edits.length-1]
+		if (msg == undefined) msg = info.original;
+		msg.deleted = true;
+		eEvents.emit('MESSAGE_DELETE', msg);
+	})
+	iEvents.on('MESSAGE_DELETE_BULK', (d) => {
+		var msgs = [];
+		for (var index in d.ids) {
+			var id = d.ids[index];
+			var info = discord.messages[id];
+			if (info) {
+				var msg = info.current;
+				msg.deleted = true;
+				msgs.push(msg);
+			}
+		}
+		eEvents.emit('MESSAGE_DELETE_BULK', msgs);
+	})
+	iEvents.on('GUILD_MEMBER_UPDATE', (d) => {
+		var gm = new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id));
+		eEvents.emit('GUILD_MEMBER_UPDATE', gm);
+	})
+	iEvents.on('CHANNEL_DELETE', (d) => {
+		
+		var channel = lib.channels.find(c => c.id==d.id);
+		
+		if (channel.guild) {
+			channel.guild.setChannel(channel, undefined);
+		}
+		
+
+		
+		eEvents.emit('CHANNEL_DELETE', channel);
+	})
+	iEvents.on('CHANNEL_CREATE', (d) => {
+		var channel, cat
+		if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(d);
+		else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(d);
+		else if (d.type == constants.CHANNELS.CATEGORY) {channel = new iChannelCategory(d); cat = true; }
+		else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(d); 
+		else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
+		
+		if (channel.guild) {
+			channel.guild.setChannel(channel);
+		}
+		
+		eEvents.emit('CHANNEL_CREATE', channel);
+	})
+	iEvents.on('CHANNEL_UPDATE', (d) => {
+		
+		var channel = lib.channels.find(c => c.id==d.id);
+		
+		if (channel.guild) {
+			channel.guild.setChannel(channel, channel);
+		}
+		
+		eEvents.emit('CHANNEL_UPDATE', channel);
+	})
+	iEvents.on('GUILD_BAN_ADD', (d) => {
+		var gm = new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id))
+		eEvents.emit('GUILD_BAN_ADD', gm);
+	})
+	iEvents.on('GUILD_BAN_REMOVE', (d) => {
+		var gm = new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id))
+		eEvents.emit('GUILD_BAN_REMOVE', gm);
+	})
+	iEvents.on('GUILD_UPDATE', (d) => {
+		// different information than a standard guild. god damnit. 
+		// do shitty merge here
+		// probably will lead to inconsistencies, but blame discord for too many variances of information at this point
+		
+		var guild = new iGuild(d)
+		
+		lib.guilds[lib.guilds.findIndex(g => g.id==d.id)] = guild;
+		
+		eEvents.emit('GUILD_UPDATE', guild);
+	})
+	iEvents.on('GUILD_CREATE', (d) => {
+		var guild = new iGuild(d);
+		var index = lib.guilds.findIndex(g => g.id==d.id);
+		lib.guilds[index] = guild;
+		
+		eEvents.emit('GUILD_CREATE', guild) // seems ok
+	})
+	iEvents.on('GUILD_DELETE', (d) => {
+		var index = lib.guilds.findIndex(g => g.id==d.id);
+		var guild = lib.guilds[index];
+		lib.guilds.splice(index, 1);
+		eEvents.emit('GUILD_DELETE', guild) // seems ok
+	})
+	iEvents.on('USER_UPDATE', (d) => {
+		if (d.id == lib.user.id) {
+			var index = lib.users.findIndex(u => u.id==lib.user.id);
+			
+			var user = new iUser(d);
+			lib.user = user;
+			discord.user = user;
+			lib.users[index] = user;
+			return;
+		}
+	})
+
+	iEvents.on('VOICE_STATE_UPDATE', (data) => {
+		if (data.channel_id==null) {
+			if (session.debug) console.log('Someone left a voice call.');
+			return;
+		}
+	})
+
+
+
+
+	iEvents.on('ANY', (name, d) => {
+		//eEvents.emit('ANY', name, d);
+		
+		if (discord.events.listenerCount(name)==0) { // i'm not listening to the event, so just chuck it out (after some formatting?).
+			
+			if (d.user != undefined && d.user.id != undefined) { // something with a user.
+				// guildmember?
+				if (d.guild_id != undefined) {
+					return eEvents.emit(name, new iGuildMember(d, lib.guilds.find(g => g.id==d.guild_id)))
+				}
+				
+				
+				// nothin? probably useless then
+				return eEvents.emit(name, new iUser(d));
+			}
+			
+			if (session.debug) console.log('caught ANY', name, d); // will probably add support later for whatever this is
+			eEvents.emit(name, d);
+		}
+		
+	})
+
+	iEvents.on('MESSAGE_REACTION_ADD', (d) => {
+		eEvents.emit('MESSAGE_REACTION_ADD', d) // could support fully sometime later
+	})
+	iEvents.on('MESSAGE_REACTION_REMOVE', (d) => {
+		eEvents.emit('MESSAGE_REACTION_REMOVE', d) // could support fully sometime later
+	})
+	iEvents.on('CHANNEL_PINS_UPDATE', (d) => {
+		eEvents.emit('CHANNEL_PINS_UPDATE', d) // will end up with message_update
+	})
+	iEvents.on('CHANNEL_PINS_ACK', (d) => {
+		eEvents.emit('CHANNEL_PINS_ACK', d) // why even
+	})
+	iEvents.on('PRESENCE_UPDATE', (d) => {
+		eEvents.emit('PRESENCE_UPDATE', d); // why even
+	})
+	iEvents.on('MESSAGE_ACK', (d) => {
+		eEvents.emit('MESSAGE_ACK', d); // why even
+	})
+	iEvents.on('TYPING_START', (d) => {
+		eEvents.emit('TYPING_START', d); // why even
 	})
 }
 

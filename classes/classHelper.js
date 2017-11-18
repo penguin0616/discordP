@@ -1,10 +1,3 @@
-module.exports.discord = function(thingy) {
-	//return require("../main.js").discord();
-}
-module.exports.lib = function() {
-	//return require("../main.js");
-}
-
 module.exports.constants = function() {
 	return require("../constants/constants.js");
 }
