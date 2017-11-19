@@ -185,8 +185,14 @@ function setupGateway(session) {
 		eEvents.emit('MESSAGE_CREATE', msg);
 	})
 	iEvents.on('GUILD_MEMBER_ADD', (m) => {
+		var user = session.users.find(j => j.id == member.id);
+		if (!user) {
+			user = new iUser(session, m.user)
+			session.users.push(user);
+		}
 		var gm = new iGuildMember(session, m, session.guilds.find(g => g.id==m.guild_id));
 		eEvents.emit('GUILD_MEMBER_ADD', gm);
+		
 	})
 	iEvents.on('GUILD_MEMBER_REMOVE', (m) => {
 		var gm = new iGuildMember(session, m, session.guilds.find(g => g.id==m.guild_id));
@@ -235,10 +241,12 @@ function setupGateway(session) {
 		}
 		eEvents.emit('MESSAGE_DELETE_BULK', msgs);
 	})
+	/*
 	iEvents.on('GUILD_MEMBER_UPDATE', (d) => {
 		var gm = new iGuildMember(session, d, session.guilds.find(g => g.id==d.guild_id));
 		eEvents.emit('GUILD_MEMBER_UPDATE', gm);
 	})
+	*/
 	iEvents.on('CHANNEL_DELETE', (d) => {
 		
 		var channel = session.channels.find(c => c.id==d.id);
@@ -307,6 +315,7 @@ function setupGateway(session) {
 		session.guilds.splice(index, 1);
 		eEvents.emit('GUILD_DELETE', guild) // seems ok
 	})
+	/*
 	iEvents.on('USER_UPDATE', (d) => {
 		if (d.id == session.user.id) {
 			var index = session.users.findIndex(u => u.id==session.user.id);
@@ -317,6 +326,7 @@ function setupGateway(session) {
 			return;
 		}
 	})
+	*/
 
 	iEvents.on('VOICE_STATE_UPDATE', (data) => {
 		if (data.channel_id==null) {
@@ -330,6 +340,8 @@ function setupGateway(session) {
 
 	iEvents.on('ANY', (name, d) => {
 		//eEvents.emit('ANY', name, d);
+		
+		console.log(name);
 		
 		if (iEvents.listenerCount(name)==0) { // i'm not listening to the event, so just chuck it out (after some formatting?).
 			

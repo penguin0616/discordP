@@ -80,7 +80,7 @@ class iGuild extends iBase {
 			if (!user) {
 				user = new iUser(discord, duser)
 				this.discord.users.push(user);
-            }
+			}
 		}
 	
 		classHelper.setHiddenProperty(this, 'setChannel', function(channel, value) {
