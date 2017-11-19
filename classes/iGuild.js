@@ -6,6 +6,7 @@ const iGuildMember = require("./iGuildMember.js");
 const iTextChannel = require("./iTextChannel.js");
 const iVoiceChannel = require("./iVoiceChannel.js");
 const iChannelCategory = require("./iChannelCategory.js");
+const iUser = require("./iUser.js");
 
 
 /*
@@ -72,8 +73,14 @@ class iGuild extends iBase {
 		this.members = [];
 		for (var i in data.members) {
 			var v = data.members[i];
+			var duser = v.user;
 			var member = new iGuildMember(this.discord, v, this);
 			this.members.push(member);
+			var user = this.discord.users.find(j => j.id == member.id);
+			if (!user) {
+				user = new iUser(discord, duser)
+				this.discord.users.push(user);
+            }
 		}
 	
 		classHelper.setHiddenProperty(this, 'setChannel', function(channel, value) {

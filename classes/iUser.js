@@ -4,20 +4,11 @@ const iBase = require("./iBase.js");
 class iUser extends iBase {
 	constructor(discord, data) {
 		super(discord, data);
-		
 		if (data.user) {
 			for (var i in data.user) this[i] = data.user[i];
 			delete data.user;
 		}
-		for (var index in data) {
-			var value = data[index]
-			this[index] = value;
-		}
-		if (this.username == undefined && this.name != undefined) this.username = this.name;
-		
-		if (this.discord.users.find(u => u.id==this.id)==undefined) {
-			this.discord.users.push(this);
-		}
+		for (var index in data) this[index] = data[index];
 	}
 
 	get fullName() { return `${this.username}#${this.discriminator}` }

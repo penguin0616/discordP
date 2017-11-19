@@ -24,7 +24,7 @@ const iUser = require('./iUser.js');
 
 class iGuildMember extends iUser {
 	constructor(discord, data, guild) {
-		super(discord, {user: data.user})
+		super(discord, data);
 		if (guild == undefined) throw "attempt to construct iGuildMember with no reference to guild"
 		
 		this.roles = [];
