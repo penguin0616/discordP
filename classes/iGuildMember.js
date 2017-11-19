@@ -24,9 +24,9 @@ const iUser = require('./iUser.js');
 
 class iGuildMember extends iUser {
 	constructor(discord, data, guild) {
-		super(discord, data)
+		super(discord, {user: data.user})
 		if (guild == undefined) throw "attempt to construct iGuildMember with no reference to guild"
-		classHelper.setHiddenProperty(this, 'raw_roles', data.roles);
+		
 		this.roles = [];
 		for (var i in data.roles) {
 			var id = data.roles[i];

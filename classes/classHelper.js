@@ -8,14 +8,14 @@ module.exports.endpoints = function() {
 
 module.exports.setHiddenProperty = function(state, name, value) {
 	Object.defineProperty(state, name, {value: value, enumerable: false, writable: true, configurable: true})
-	// did not work right
-	/*
-	var proto = Object.getPrototypeOf(state);
-	proto[name] = value
-	Object.defineProperties(proto, {
-		[name]: {enumerable: false}
-	})
-	*/
+}
+
+module.exports.clone = function(obj) {
+	var newObj = {}
+	for (var i in obj) {
+		newObj[i] = obj[i];
+	}
+	return newObj;
 }
 
 module.exports.isSafe = function(thingy) {
@@ -45,20 +45,6 @@ module.exports.formatURL = function(rawUrl, formats) {
 	
 	return rawUrl
 }
-
-var sessions = [];
-
-module.exports.newSession = function(obj) {
-	// new discord session created
-	sessions.push(obj);
-	
-}
-
-
-
-
-
-
 
 
 

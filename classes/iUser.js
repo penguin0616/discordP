@@ -6,7 +6,6 @@ class iUser extends iBase {
 		super(discord, data);
 		
 		if (data.user) {
-			classHelper.setHiddenProperty(this, 'raw_user', data.user);
 			for (var i in data.user) this[i] = data.user[i];
 			delete data.user;
 		}
@@ -15,6 +14,7 @@ class iUser extends iBase {
 			this[index] = value;
 		}
 		if (this.username == undefined && this.name != undefined) this.username = this.name;
+		
 		if (this.discord.users.find(u => u.id==this.id)==undefined) {
 			this.discord.users.push(this);
 		}
@@ -135,6 +135,7 @@ class iUser extends iBase {
 	}
 	
 }
+
 
 module.exports = iUser;
 
