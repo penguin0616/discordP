@@ -185,7 +185,7 @@ function setupGateway(session) {
 		eEvents.emit('MESSAGE_CREATE', msg);
 	})
 	iEvents.on('GUILD_MEMBER_ADD', (m) => {
-		var user = session.users.find(j => j.id == member.id);
+		var user = session.users.find(j => j.id == m.id);
 		if (!user) {
 			user = new iUser(session, m.user)
 			session.users.push(user);
@@ -241,12 +241,20 @@ function setupGateway(session) {
 		}
 		eEvents.emit('MESSAGE_DELETE_BULK', msgs);
 	})
-	/*
 	iEvents.on('GUILD_MEMBER_UPDATE', (d) => {
-		var gm = new iGuildMember(session, d, session.guilds.find(g => g.id==d.guild_id));
-		eEvents.emit('GUILD_MEMBER_UPDATE', gm);
+		var user = session.users.find(u => u.id == d.user.id)
+		if (user) {
+			for (var i in d.user) {
+				user[i] = d.user[i];
+			}
+		}
+		
+		var guild = session.guilds.find(g => g.id == d.guild_id);
+		var member = new iGuildMember(session, d, guild)
+		guild.members[guild.members.findIndex(m => m.id==d.id)] = member;
+		
+		eEvents.emit('GUILD_MEMBER_UPDATE', member);
 	})
-	*/
 	iEvents.on('CHANNEL_DELETE', (d) => {
 		
 		var channel = session.channels.find(c => c.id==d.id);
@@ -315,7 +323,6 @@ function setupGateway(session) {
 		session.guilds.splice(index, 1);
 		eEvents.emit('GUILD_DELETE', guild) // seems ok
 	})
-	/*
 	iEvents.on('USER_UPDATE', (d) => {
 		if (d.id == session.user.id) {
 			var index = session.users.findIndex(u => u.id==session.user.id);
@@ -326,7 +333,6 @@ function setupGateway(session) {
 			return;
 		}
 	})
-	*/
 
 	iEvents.on('VOICE_STATE_UPDATE', (data) => {
 		if (data.channel_id==null) {
@@ -335,16 +341,37 @@ function setupGateway(session) {
 		}
 	})
 
-
-
-
+	iEvents.on('MESSAGE_REACTION_ADD', (d) => {
+		eEvents.emit('MESSAGE_REACTION_ADD', d) // could support fully sometime later
+	})
+	iEvents.on('MESSAGE_REACTION_REMOVE', (d) => {
+		eEvents.emit('MESSAGE_REACTION_REMOVE', d) // could support fully sometime later
+	})
+	iEvents.on('CHANNEL_PINS_UPDATE', (d) => {
+		eEvents.emit('CHANNEL_PINS_UPDATE', d) // will end up with message_update
+	})
+	iEvents.on('CHANNEL_PINS_ACK', (d) => {
+		eEvents.emit('CHANNEL_PINS_ACK', d) // why even
+	})
+	iEvents.on('PRESENCE_UPDATE', (data) => {
+		var user = session.users.find(u => u.id == data.user.id)
+		if (user) {
+			for (var i in data.user) {
+				user[i] = data.user[i];
+			}
+		}
+		eEvents.emit('PRESENCE_UPDATE', data);
+	})
+	iEvents.on('MESSAGE_ACK', (d) => {
+		eEvents.emit('MESSAGE_ACK', d); // why even
+	})
+	iEvents.on('TYPING_START', (d) => {
+		eEvents.emit('TYPING_START', d); // why even
+	})
+	
+	
 	iEvents.on('ANY', (name, d) => {
-		//eEvents.emit('ANY', name, d);
-		
-		console.log(name);
-		
 		if (iEvents.listenerCount(name)==0) { // i'm not listening to the event, so just chuck it out (after some formatting?).
-			
 			if (d.user != undefined && d.user.id != undefined) { // something with a user.
 				// guildmember?
 				if (d.guild_id != undefined) {
@@ -360,28 +387,6 @@ function setupGateway(session) {
 			eEvents.emit(name, d);
 		}
 		
-	})
-
-	iEvents.on('MESSAGE_REACTION_ADD', (d) => {
-		eEvents.emit('MESSAGE_REACTION_ADD', d) // could support fully sometime later
-	})
-	iEvents.on('MESSAGE_REACTION_REMOVE', (d) => {
-		eEvents.emit('MESSAGE_REACTION_REMOVE', d) // could support fully sometime later
-	})
-	iEvents.on('CHANNEL_PINS_UPDATE', (d) => {
-		eEvents.emit('CHANNEL_PINS_UPDATE', d) // will end up with message_update
-	})
-	iEvents.on('CHANNEL_PINS_ACK', (d) => {
-		eEvents.emit('CHANNEL_PINS_ACK', d) // why even
-	})
-	iEvents.on('PRESENCE_UPDATE', (d) => {
-		eEvents.emit('PRESENCE_UPDATE', d); // why even
-	})
-	iEvents.on('MESSAGE_ACK', (d) => {
-		eEvents.emit('MESSAGE_ACK', d); // why even
-	})
-	iEvents.on('TYPING_START', (d) => {
-		eEvents.emit('TYPING_START', d); // why even
 	})
 }
 
