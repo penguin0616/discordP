@@ -62,10 +62,13 @@ class discordp {
 		if (this.loggedIn==true) throw "Attempted to login while already successfully logged in.";
 		var prom = new Promise((resolve, reject) => {
 			if (login.token != undefined) return resolve(JSON.stringify(login))
+			reject("No token supplied");
+			/*
 			this.http.post(endpoints.login, JSON.stringify(login), function(error, response, rawData) {
 				if (error || response.statusCode!=200) return reject(error);
 				return resolve(rawData);
 			})
+			*/
 		})
 		prom.then((raw) => {
 			let data = JSON.parse(raw);
