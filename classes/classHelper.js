@@ -36,6 +36,11 @@ module.exports.type = function(operand) {
 	return typeof(operand);
 }
 
+module.exports.getClass = function(obj) {
+	if (module.exports.isSafe(obj)==false) return undefined;
+	return obj.class;
+}
+
 module.exports.formatURL = function(rawUrl, formats) {
 	
 	for (var frum in formats) {

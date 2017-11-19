@@ -1,5 +1,6 @@
 // old format wasn't that great.
 // if something breaks, blame Dark  Overlord#9351
+// cuz hes a good scapegoat, though he probably changed his username since i put it here
 
 // events
 const eventEmitter = require("events");

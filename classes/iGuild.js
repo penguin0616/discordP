@@ -118,7 +118,7 @@ class iGuild extends iBase {
 		return channels;
 	}
 	
-	
+	get owner() { return this.members.find(m => m.id==this.owner_id) }
 	
 	
 	

@@ -51,11 +51,6 @@ class iUser extends iBase {
 		})
 	}
 	
-	isMemberOf(guild) {
-		var lib = this.discord;
-		if (classHelper.isSafe(guild)) return lib.guilds.find(g => g.id==guild.id);
-	}
-	
 	edit(currentPassword, username, avatar, email, newPassword) {
 		var discord = this.discord;
 		var user = discord.user;
@@ -124,6 +119,18 @@ class iUser extends iBase {
 		}
 		this.discord.gateway.send(data)
 	}
+	
+	memberOf(arg) {
+		var id;
+		if (classHelper.getClass(arg)=='iGuild') id = arg.id;
+		else if (typeof(arg)=='string' || typeof(arg)=='number') id = arg;
+		else throw "Attempt to call memberOf without an iGuild or a string."
+		
+		var guild = this.discord.guilds.find(g => g.id == id)
+		if (guild) return guild.members.find(m => m.id == this.id);
+	}
+	
+	
 	
 }
 
