@@ -59,7 +59,7 @@ class iMessage extends iBase {
 	}
 	
 	reply(content, tts, embed) {
-		return this.channel.sendMessage("${this.author.mention}, ${content}", tts, embed);
+		return this.channel.sendMessage(`${this.author.mention}, ${content}`, tts, embed);
 	}
 	
 	delete() {
