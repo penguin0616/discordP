@@ -63,12 +63,6 @@ class discordp {
 		var prom = new Promise((resolve, reject) => {
 			if (login.token != undefined) return resolve(JSON.stringify(login))
 			reject("No token supplied");
-			/*
-			this.http.post(endpoints.login, JSON.stringify(login), function(error, response, rawData) {
-				if (error || response.statusCode!=200) return reject(error);
-				return resolve(rawData);
-			})
-			*/
 		})
 		prom.then((raw) => {
 			let data = JSON.parse(raw);
@@ -76,8 +70,6 @@ class discordp {
 			this.internal.token = data.token;
 			this.loggedIn = true;
 			this.http.updateToken(this.internal.token);
-			if (this.debug) console.log("Login returned:", data);
-			
 			setupGateway(this);
 		})
 		prom.catch((e) => {throw "Failed to login to Discord."})
@@ -116,7 +108,7 @@ function setupGateway(session) {
 		delete e.guilds;
 		
 		
-		// relationships
+		// relationships // cuz why not
 		for (var index in e.relationships) {
 			var relation = e.relationships[index];
 			if (relation.type == constants.RELATIONSHIPS.FRIEND) { session.friends.push(new iUser(session, relation.user)); }
@@ -125,7 +117,7 @@ function setupGateway(session) {
 		}
 		delete e.relationships;
 		
-		// notes
+		// notes // why not
 		for (var id in e.notes) {
 			var note = e.notes[id];
 			session.notes.push({id: id, note: note})
@@ -157,7 +149,7 @@ function setupGateway(session) {
 		delete e.tutorial;
 		
 		// presences
-		delete e.presences; // from friends
+		delete e.presences; // from friends/users/idk
 		
 		// v
 		delete e.v; // version of gateway/api/whatever
@@ -175,7 +167,12 @@ function setupGateway(session) {
 				session.channels.push(new iDMChannel(session, channel));
 			} else throw 'unknown private_channel type found'
 		}
-		delete e.private_channels;
+		delete e.private_channels; // 
+		
+		delete e.shard; // already know the shard stuff
+		
+		if (JSON.stringify(e) != "{}" && session.debug) console.log("Ready event not completely parsed:", e);
+		
 		eEvents.emit('GATEWAY_READY');
 	})
 	
