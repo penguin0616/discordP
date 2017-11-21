@@ -167,7 +167,7 @@ function setupGateway(session) {
 				session.channels.push(new iDMChannel(session, channel));
 			} else throw 'unknown private_channel type found'
 		}
-		delete e.private_channels; // 
+		delete e.private_channels; 
 		
 		delete e.shard; // already know the shard stuff
 		
@@ -178,7 +178,6 @@ function setupGateway(session) {
 	
 	iEvents.on('MESSAGE_CREATE', (m) => {
 		var msg = new iMessage(session, m);
-		
 		internal.messages[msg.id]={edits:[]}
 		internal.messages[msg.id].original = msg;
 		internal.messages[msg.id].current = msg;
@@ -257,28 +256,24 @@ function setupGateway(session) {
 		eEvents.emit('GUILD_MEMBER_UPDATE', member);
 	})
 	iEvents.on('CHANNEL_DELETE', (d) => {
-		
 		var channel = session.channels.find(c => c.id==d.id);
-		
 		if (channel.guild) {
 			channel.guild.setChannel(channel, undefined);
 		}
-		
-
-		
 		eEvents.emit('CHANNEL_DELETE', channel);
 	})
 	iEvents.on('CHANNEL_CREATE', (d) => {
-		var channel, cat
+		var channel
 		if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(session, d);
 		else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(session, d);
-		else if (d.type == constants.CHANNELS.CATEGORY) {channel = new iChannelCategory(session, d); cat = true; }
+		else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(session, d);
 		else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(session, d); 
 		else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
 		
 		if (channel.guild) {
 			channel.guild.setChannel(channel);
 		}
+		session.channels.push(channel);
 		
 		eEvents.emit('CHANNEL_CREATE', channel);
 	})
@@ -372,6 +367,7 @@ function setupGateway(session) {
 	
 	
 	iEvents.on('ANY', (name, d) => {
+		//console.log(name);
 		if (iEvents.listenerCount(name)==0) { // i'm not listening to the event, so just chuck it out (after some formatting?).
 			if (d.user != undefined && d.user.id != undefined) { // something with a user.
 				// guildmember?

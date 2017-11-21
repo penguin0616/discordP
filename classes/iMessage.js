@@ -54,6 +54,14 @@ class iMessage extends iBase {
 		return this.discord.channels.find(c => c.id == this.channel_id);
 	}
 	
+	get guild() {
+		if (this.channel && this.channel.guild_id) return this.discord.guilds.find(g => g.id == this.channel.guild_id);
+	}
+	
+	reply(content, tts, embed) {
+		return this.channel.sendMessage("${this.author.mention}, ${content}", tts, embed);
+	}
+	
 	delete() {
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
@@ -120,6 +128,8 @@ class iMessage extends iBase {
 			)
 		})
 	}
+	
+	get selfOwned() {return this.author.id == this.discord.user.id}
 }
 
 module.exports = iMessage;

@@ -130,6 +130,9 @@ class iUser extends iBase {
 		if (guild) return guild.members.find(m => m.id == this.id);
 	}
 	
+	get mention() {
+		return `<@${this.id}>`;
+	}
 	
 	
 }
