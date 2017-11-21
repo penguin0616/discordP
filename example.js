@@ -1,7 +1,7 @@
 const discordp = require("PATH_TO_MAIN_FOLDER/main.js");
 
 var bot = new discordp({
-	debug: true,
+	debug: true, // if ur into debugging mode and wanna help me by sending me bugs
 	shardId: 1,
 	shardCount: 1
 });
