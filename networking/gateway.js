@@ -67,7 +67,7 @@ class gateway {
 				// they ack'd our heartbeat ping
 				return;
 			} else if (data.op == constants.OPCODE.INVALID_SESSION) {
-				throw "Attempted to connect to Discord gateway with an invalid session. Wrong token?";
+				throw "Attempted to connect to Discord gateway with an invalid session. Can be caused by a invalid token, but usually just a quick bug. Restarting the bot should fix it.";
 				
 			} else if (data.op == constants.OPCODE.HEARTBEAT) {
 				_this.ping();

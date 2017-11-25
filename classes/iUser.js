@@ -56,7 +56,7 @@ class iUser extends iBase {
 		var user = discord.user;
 		username = username || user.username;
 		email = email || user.email;
-		newPassword = newPassword | null;
+		newPassword = newPassword || null;
 		
 		if (!avatar || !(avatar instanceof Buffer)) avatar = null;
 		else {
@@ -72,13 +72,30 @@ class iUser extends iBase {
 		
 		var data = {
 			username: username,
-			email: email,
-			password: currentPassword,
 			avatar: avatar
 		};
 		
-		if (newPassword != null) data.newPassword = newPassword;
+		/* // for some reason breaks rest of script
 		
+		if (email != undefined) {
+			data.email = email;
+			console.log('a');
+		};
+
+		if (password != undefined) {
+			data.password = password;
+			console.log('b');
+		};
+		
+		
+		if (newPassword != null) {
+			data.newPassword = newPassword;
+			console.log('c');
+		};
+		*/
+		
+		console.log(data);
+			
 		return new Promise((resolve, reject) => {
 			discord.http.patch(
 				discord.endpoints.me, 
@@ -86,8 +103,8 @@ class iUser extends iBase {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					if (response.statusCode==200) {
-						resolve(new iUser(JSON.parse(discord, rawData)));
-					} else reject("Failed to update user.");
+						resolve(new iUser(discord, JSON.parse(rawData)));
+					} else reject(rawData);
 				}
 			)
 		})
