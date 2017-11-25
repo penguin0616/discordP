@@ -94,6 +94,8 @@ class iUser extends iBase {
 	}
 	
 	setAvatar(avatar, currentPassword) {
+		if (this.id != this.discord.user.id) return;
+		
 		var discord = this.discord;
 		if (discord.user.bot != true && currentPassword==undefined) return reject('setAvatar arg#2 needs password.');
 		return this.edit(currentPassword, undefined, avatar, undefined, undefined);
@@ -105,8 +107,9 @@ class iUser extends iBase {
 		var type = (classHelper.type(status)=='object' && status.status) || status;
 		
 		if (classHelper.type(game)=='object') {
+			console.log('a');
 			if (game.name == undefined || game.type == undefined) game = null;
-		} else if (classHelper.type(game) != 'object' && game != null) game = null;
+		} else game = null;
 		
 		var data = {
 			op: classHelper.constants().OPCODE.STATUS_UPDATE,

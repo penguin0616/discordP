@@ -239,6 +239,11 @@ function setupGateway(session) {
 				msgs.push(msg);
 			}
 		}
+		
+		msgs.forEach((msg) => {
+			eEvents.emit('MESSAGE_DELETE', msg);
+		})
+		
 		eEvents.emit('MESSAGE_DELETE_BULK', msgs);
 	})
 	iEvents.on('GUILD_MEMBER_UPDATE', (d) => {
