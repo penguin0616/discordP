@@ -45,6 +45,12 @@ class discordp {
 			this.shardCount = data.shardCount;
 		} else {this.shardId = 1; this.shardCount = 1;}
 		
+		if (data.autoReconnect==true) {
+			this.autoReconnect=true;
+			if (data.reconnectDelay) this.reconnectDelay = data.reconnectDelay;
+			else this.reconnectDelay = 3000;
+		}
+		
 		// make categories
 		this.user = undefined;
 		this.guilds = [];
@@ -143,6 +149,7 @@ function setupGateway(session) {
 		delete e.read_state;
 		
 		// session_id
+		session.session_id = e.session_id;
 		delete e.session_id;
 		
 		// tutorial

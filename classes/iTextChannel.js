@@ -20,12 +20,10 @@ class iTextChannel extends iChannel {
 		if (lib.channels.find(c => c.id==this.id)==undefined) lib.channels.push(this);
 	}
 	
-	
 	sendMessage(content, tts, embed) {
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.createMessage, {"channel.id": this.id})
-			
 			discord.http.post(
 				url,
 				JSON.stringify({
@@ -39,11 +37,35 @@ class iTextChannel extends iChannel {
 					if (error) return reject(error);
 					var data = JSON.parse(rawData);
 					if (response.statusCode==200) return resolve(new iMessage(discord, data))
-					reject('Unable to send message: ' + data.message);
+					reject('Unable to send message: ' + rawData);
 				}
 			)
 		})
 	}
+	
+	bulkDelete(msgs) {
+		return new Promise((resolve, reject) => {
+			var scraped = [];
+			
+			msgs.forEach((msg) => {
+				if (classHelper.getClass(msg)=='iMessage') scraped.push(msg.id);
+				if (classHelper.snowflake(msg)==true) scraped.push(`${msg}`);
+			})
+			
+			var url = classHelper.formatURL(this.discord.endpoints.bulkDelete, {"channel.id": this.id})
+			this.discord.http.post(
+				url,
+				JSON.stringify({messages: scraped}),
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject('Unable to bulk delete: ' + rawData);
+				}
+			)
+		})
+	}
+	
+	get deleteMessages() { return this.bulkDelete }
 	
 }
 

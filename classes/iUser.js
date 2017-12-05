@@ -75,28 +75,12 @@ class iUser extends iBase {
 			avatar: avatar
 		};
 		
-		/* // for some reason breaks rest of script
+		if (email) data.email = email;
+		if (currentPassword) data.password = currentPassword;
+		if (newPassword != null) data.newPassword = newPassword;
 		
-		if (email != undefined) {
-			data.email = email;
-			console.log('a');
-		};
-
-		if (password != undefined) {
-			data.password = password;
-			console.log('b');
-		};
-		
-		
-		if (newPassword != null) {
-			data.newPassword = newPassword;
-			console.log('c');
-		};
-		*/
-		
-		console.log(data);
-			
 		return new Promise((resolve, reject) => {
+			if (discord.user.bot != true && currentPassword==undefined) return reject('setAvatar arg#2 needs password.');
 			discord.http.patch(
 				discord.endpoints.me, 
 				JSON.stringify(data),
@@ -104,7 +88,7 @@ class iUser extends iBase {
 					if (error) return reject(error);
 					if (response.statusCode==200) {
 						resolve(new iUser(discord, JSON.parse(rawData)));
-					} else reject(rawData);
+					} else reject("Failed to update user: " + rawData);
 				}
 			)
 		})
@@ -114,7 +98,6 @@ class iUser extends iBase {
 		if (this.id != this.discord.user.id) return;
 		
 		var discord = this.discord;
-		if (discord.user.bot != true && currentPassword==undefined) return reject('setAvatar arg#2 needs password.');
 		return this.edit(currentPassword, undefined, avatar, undefined, undefined);
 	}
 	

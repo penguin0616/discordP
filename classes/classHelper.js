@@ -30,6 +30,11 @@ module.exports.isSafe = function(thingy) {
 	return isSafe;
 }
 
+module.exports.snowflake = function(operand) {
+	if (typeof(operand)=='string' || typeof(operand)=='number') return true;
+	return false;
+}
+
 module.exports.type = function(operand) {
 	if (operand == null) return 'null';
 	if (Array.isArray(operand)) return 'array';

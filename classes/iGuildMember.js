@@ -59,7 +59,7 @@ class iGuildMember extends iUser {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					if (response.statusCode==204 || response.statusCode==200) return resolve();
-					reject('Unable to set nickname');
+					reject('Unable to set nickname:' + rawData);
 				}
 			)
 		})
