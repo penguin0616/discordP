@@ -45,11 +45,12 @@ class iTextChannel extends iChannel {
 	
 	bulkDelete(msgs) {
 		return new Promise((resolve, reject) => {
+			
 			var scraped = [];
 			
 			msgs.forEach((msg) => {
-				if (classHelper.getClass(msg)=='iMessage') scraped.push(msg.id);
-				if (classHelper.snowflake(msg)==true) scraped.push(`${msg}`);
+				if (classHelper.getClass(msg)=='iMessage') scraped.push(msg.id.toString());
+				else if (classHelper.snowflake(msg)==true) scraped.push(msg.toString());
 			})
 			
 			var url = classHelper.formatURL(this.discord.endpoints.bulkDelete, {"channel.id": this.id})
@@ -58,6 +59,7 @@ class iTextChannel extends iChannel {
 				JSON.stringify({messages: scraped}),
 				function(error, response, rawData) {
 					if (error) return reject(error);
+					console.log(response.statusCode, rawData);
 					if (response.statusCode==204) return resolve();
 					reject('Unable to bulk delete: ' + rawData);
 				}
@@ -65,7 +67,7 @@ class iTextChannel extends iChannel {
 		})
 	}
 	
-	get deleteMessages() { return this.bulkDelete }
+	get deleteMessages() { return this.bulkDelete } // preference.exe
 	
 }
 
