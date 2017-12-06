@@ -59,7 +59,6 @@ class iTextChannel extends iChannel {
 				JSON.stringify({messages: scraped}),
 				function(error, response, rawData) {
 					if (error) return reject(error);
-					console.log(response.statusCode, rawData);
 					if (response.statusCode==204) return resolve();
 					reject('Unable to bulk delete: ' + rawData);
 				}
@@ -69,6 +68,51 @@ class iTextChannel extends iChannel {
 	
 	get deleteMessages() { return this.bulkDelete } // preference.exe
 	
+	fetchMessages(limit, before, after, around) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.getChannelMessages, {"channel.id": this.id})
+			
+			if (typeof(limit) != 'number') limit = 50;
+			url+= `?limit=${limit}`
+			
+			
+			// before, after, around are mutually exclusive
+			if (before != undefined) url+= `&before=${before}`;
+			else if (after != undefined) url+= `&after=${after}`;
+			else if (around != undefined) url += `$around=${around}`;
+
+			discord.http.get(
+				url,
+				function(err, res, raw) {
+					if (err) reject(err);
+					if (res.statusCode!=200) reject(raw);
+					var rawMsgs = JSON.parse(raw)
+					var msgs = []
+					
+					rawMsgs.forEach((msg) => {
+						msgs.push(new iMessage(discord, msg));
+					})
+					
+					resolve(msgs);
+				}
+			)
+		})
+	}
 }
 
 module.exports = iTextChannel;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

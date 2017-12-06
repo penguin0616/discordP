@@ -4,7 +4,6 @@ const iChannel = require("./iChannel.js");
 const iUser = require("./iUser.js");
 const iMessage = require("./iMessage.js"); // whoooooops
 
-
 class iDMChannel extends iChannel {
 	constructor(discord, data) {
 		super(discord, data);
@@ -47,6 +46,8 @@ class iDMChannel extends iChannel {
 			)
 		})
 	}
+	
+	
 }
 
 

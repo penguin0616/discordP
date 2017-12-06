@@ -10,6 +10,7 @@ module.exports = {
 	manageMessage: "/api/v6/channels/{channel.id}/messages/{message.id}",
 	createMessage: "/api/v6/channels/{channel.id}/messages",
 	bulkDelete: "/api/v6/channels/{channel.id}/messages/bulk-delete",
+	getChannelMessages: "/api/v6/channels/{channel.id}/messages",
 	
 	
 	modifyGuildMember: "/api/v6/guilds/{guild.id}/members/{user.id}",
