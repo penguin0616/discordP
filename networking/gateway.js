@@ -105,8 +105,8 @@ function connect(discord, shard, maxShards, session, ws, reconnectInfo) {
 	
 	ws.on("close", function(code) {
 		session.connected = false;
-		if (code == 1006) { // we were disconnected
-			if (discord.debug) console.log("Gateway connection was closed;");
+		if (code != 1000) { // we were disconnected
+			if (discord.debug) console.log("Gateway connection failed;");
 			if (discord.autoReconnect==true) {
 				setTimeout(function() {
 					restart(discord, shard, maxShards, session);

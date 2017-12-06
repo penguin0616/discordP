@@ -48,7 +48,7 @@ class discordp {
 		if (data.autoReconnect==true) {
 			this.autoReconnect=true;
 			if (data.reconnectDelay) this.reconnectDelay = data.reconnectDelay;
-			else this.reconnectDelay = 3000;
+			else this.reconnectDelay = 6000;
 		}
 		
 		// make categories
@@ -98,7 +98,7 @@ function setupGateway(session) {
 		}, session.gateway.heartbeat_interval)
 		
 		// user
-		if (e.user.bot==true) internal.token = "Bot " + internal.token;
+		if (e.user.bot==true && internal.token.startsWith("Bot ")==false) internal.token = "Bot " + internal.token;
 		session.http.updateToken(internal.token);
 		
 		
