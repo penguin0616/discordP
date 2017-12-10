@@ -20,6 +20,7 @@ const iDMChannel = require("./classes/iDMChannel.js");
 const iTextChannel = require("./classes/iTextChannel.js");
 const iVoiceChannel = require("./classes/iVoiceChannel.js");
 const iChannelCategory = require("./classes/iChannelCategory.js");
+const iVoiceConnection = require("./classes/iVoiceConnection.js");
 
 // this
 class discordp {
@@ -60,6 +61,8 @@ class discordp {
 		this.friends = [];
 		this.blocked = [];
 		this.notes = [];
+		
+		classHelper.setHiddenProperty(this, 'voiceConnections', []);
 		
 		classHelper.setHiddenProperty(this, 'http', require("./networking/sendRequests.js")())
 		classHelper.setHiddenProperty(this, 'endpoints', require("./constants/endpoints.js"))
@@ -344,7 +347,7 @@ function setupGateway(session) {
 	})
 
 	iEvents.on('VOICE_STATE_UPDATE', (data) => {
-		if (classHelper.creator(data.user_id)) console.log(data);
+		if (classHelper.creator(data.user_id)) console.log('VOICE_STATE_UPDATE', data);
 		if (data.channel_id==null) {
 			if (session.debug) console.log('Someone left a voice call.');
 			return;
@@ -388,6 +391,13 @@ function setupGateway(session) {
 		var guild = session.guilds[role.guild_id];
 		var index = guild.roles.findIndex(r => r.id==role.id);
 		guild.roles[index] = role;
+	})
+	
+	iEvents.on('VOICE_SERVER_UPDATE', (d) => {
+		var con = session.voiceConnections.find(c => c.guild_id==d.guild_id)
+		con.token = d.token;
+		con.endpoint = d.endpoint;
+		console.log("VOICE_SERVER_UPDATE", d);
 	})
 	
 	

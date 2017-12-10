@@ -148,9 +148,6 @@ class gateway {
 		dis.socket = ws;
 		
 		connect(discord, shard, maxShards, dis, ws)
-		
-		
-		
 	}
 	
 	send(data) {
