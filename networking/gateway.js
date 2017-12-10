@@ -105,15 +105,14 @@ function connect(discord, shard, maxShards, session, ws, reconnectInfo) {
 	
 	ws.on("close", function(code) {
 		session.connected = false;
-		if (code != 1000) { // we were disconnected
-			if (discord.debug) console.log("Gateway connection failed;");
-			if (discord.autoReconnect==true) {
-				setTimeout(function() {
-					restart(discord, shard, maxShards, session);
-				}, discord.reconnectDelay)
-			}
-		} else {
-			if (discord.debug) console.log('Close:', code, data);
+		if (discord.debug) {
+			var err = code;
+			console.log("Gateway connection failed;", err);
+		}
+		if (discord.autoReconnect==true) {
+			setTimeout(function() {
+				restart(discord, shard, maxShards, session);
+			}, discord.reconnectDelay)
 		}
 	})
 	ws.on("error", function(err) {
@@ -158,9 +157,10 @@ class gateway {
 		if (this.connected == false) {
 			if (this.discord.debug) console.log('dumped a packet that tried to get sent:', data);
 			//throw 'gateway disconnected!';
-			return;
+			return false;
 		}
 		this.socket.send(JSON.stringify(data));
+		return true;
 	}
 	
 	ping() {
@@ -172,6 +172,10 @@ class gateway {
 		}
 		this.sequenceNumber++
 		this.send(heartbeat)
+	}
+	
+	inspect() {
+		return 'no u';
 	}
 }
 

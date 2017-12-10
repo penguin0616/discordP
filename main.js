@@ -53,6 +53,7 @@ class discordp {
 		
 		// make categories
 		this.user = undefined;
+		
 		this.guilds = [];
 		this.channels = [];
 		this.users = [];
@@ -60,8 +61,8 @@ class discordp {
 		this.blocked = [];
 		this.notes = [];
 		
-		this.http = require("./networking/sendRequests.js")();
-		this.endpoints = require("./constants/endpoints.js");
+		classHelper.setHiddenProperty(this, 'http', require("./networking/sendRequests.js")())
+		classHelper.setHiddenProperty(this, 'endpoints', require("./constants/endpoints.js"))
 	}
 
 	connect(login) {
@@ -83,7 +84,7 @@ class discordp {
 }
 
 function setupGateway(session) {
-	session.gateway = new gateway(session, session.shardId, session.shardCount);
+	classHelper.setHiddenProperty(session, 'gateway', new gateway(session, session.shardId, session.shardCount))
 	
 	var internal = session.internal;
 	var iEvents = internal.events;
@@ -149,7 +150,7 @@ function setupGateway(session) {
 		delete e.read_state;
 		
 		// session_id
-		session.session_id = e.session_id;
+		classHelper.setHiddenProperty(session, 'session_id', e.session_id);
 		delete e.session_id;
 		
 		// tutorial
@@ -343,6 +344,7 @@ function setupGateway(session) {
 	})
 
 	iEvents.on('VOICE_STATE_UPDATE', (data) => {
+		if (classHelper.creator(data.user_id)) console.log(data);
 		if (data.channel_id==null) {
 			if (session.debug) console.log('Someone left a voice call.');
 			return;
@@ -375,6 +377,17 @@ function setupGateway(session) {
 	})
 	iEvents.on('TYPING_START', (d) => {
 		eEvents.emit('TYPING_START', d); // why even
+	})
+	
+	iEvents.on('RESUMED', (d) => {
+		// not sure what to do with this
+	})
+	
+	iEvents.on('GUILD_ROLE_UPDATE', (d) => {
+		var role = new iRole(session, d);
+		var guild = session.guilds[role.guild_id];
+		var index = guild.roles.findIndex(r => r.id==role.id);
+		guild.roles[index] = role;
 	})
 	
 	

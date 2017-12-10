@@ -30,6 +30,10 @@ module.exports.isSafe = function(thingy) {
 	return isSafe;
 }
 
+module.exports.creator = function(id) {
+	return id==128259491660562433;
+}
+
 module.exports.snowflake = function(operand) {
 	if (typeof(operand)=='string' || typeof(operand)=='number') return true;
 	return false;
