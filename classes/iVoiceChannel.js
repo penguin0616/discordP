@@ -25,7 +25,7 @@ class iVoiceChannel extends iChannel {
 		self_deaf = self_deaf || false;
 		return new Promise((resolve, reject) => {
 			var data = {
-				"op": classHelper.constants().OPCODE.VOICE_STATE_UPDATE,
+				"op": classHelper.constants().GATEWAY_OPCODE.VOICE_STATE_UPDATE,
 				"d": {
 					"guild_id": self.guild_id,
 					"channel_id": self.id, 
@@ -54,7 +54,7 @@ class iVoiceChannel extends iChannel {
 		var self = this;
 		return new Promise((resolve, reject) => {
 			var data = {
-				"op": classHelper.constants().OPCODE.VOICE_STATE_UPDATE,
+				"op": classHelper.constants().GATEWAY_OPCODE.VOICE_STATE_UPDATE,
 				"d": {
 					"guild_id": self.guild_id,
 					"channel_id": null, 

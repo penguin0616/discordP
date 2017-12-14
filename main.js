@@ -87,7 +87,7 @@ class discordp {
 }
 
 function setupGateway(session) {
-	classHelper.setHiddenProperty(session, 'gateway', new gateway(session, session.shardId, session.shardCount))
+	classHelper.setHiddenProperty(session, 'gateway', new gateway(session))
 	
 	var internal = session.internal;
 	var iEvents = internal.events;
@@ -347,10 +347,18 @@ function setupGateway(session) {
 	})
 
 	iEvents.on('VOICE_STATE_UPDATE', (data) => {
-		if (classHelper.creator(data.user_id)) console.log('VOICE_STATE_UPDATE', data);
+		//if (classHelper.creator(data.user_id)) console.log('VOICE_STATE_UPDATE', data);
+		
+		if (data.user_id == session.user.id) {
+			console.log('UPDATE', data)
+			var con = session.voiceConnections.find(c => c.guild_id==data.guild_id)
+			con.session_id = data.session_id;
+			con.user_id = data.user_id;
+			
+		}
+		
 		if (data.channel_id==null) {
-			if (session.debug) console.log('Someone left a voice call.');
-			return;
+			//if (session.debug) console.log('Someone left a voice call.');
 		}
 	})
 
@@ -397,7 +405,10 @@ function setupGateway(session) {
 		var con = session.voiceConnections.find(c => c.guild_id==d.guild_id)
 		con.token = d.token;
 		con.endpoint = d.endpoint;
-		console.log("VOICE_SERVER_UPDATE", d);
+		
+		con.init();
+		
+		//console.log("VOICE_SERVER_UPDATE", d);
 	})
 	
 	

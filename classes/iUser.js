@@ -112,7 +112,7 @@ class iUser extends iBase {
 		} else game = null;
 		
 		var data = {
-			op: classHelper.constants().OPCODE.STATUS_UPDATE,
+			op: classHelper.constants().GATEWAY_OPCODE.STATUS_UPDATE,
 			d: {
 				"game": game,
 				"status": type,

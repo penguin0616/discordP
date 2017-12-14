@@ -33,6 +33,7 @@ module.exports.isSafe = function(thingy) {
 module.exports.creator = function(id) {
 	return id==128259491660562433;
 }
+module.exports.testBot = function(id) { return id==297923705617514496; }
 
 module.exports.snowflake = function(operand) {
 	if (typeof(operand)=='string' || typeof(operand)=='number') return true;

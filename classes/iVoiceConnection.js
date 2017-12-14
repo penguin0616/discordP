@@ -7,13 +7,21 @@ class iVoiceConnection extends iBase {
 		
 		this.channel_id = channel.id;
 		this.guild_id = channel.guild_id;
-		//this.socket = 
+		
+		this.booted = false;
 	}
 	
 	get channel() { return this.discord.channels.find(c => c.id==this.channel_id)}
 	get guild() { return this.discord.guilds.find(g => g.id==this.guild_id)}
 	
-	
+	init() {
+		if (this.booted == true) console.log('oh no');
+		this.booted = true;
+		
+		var asd = require("../voice/asd.js");
+		this.socket = new asd(this);
+		
+	}
 	
 }
 
