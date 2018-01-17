@@ -120,6 +120,29 @@ class iGuild extends iBase {
 	
 	get owner() { return this.members.find(m => m.id==this.owner_id) }
 	
+	getBans() {
+		// /api/v6/guilds/278741112867389451/bans
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.bans, {"guild.id": this.id})
+			discord.http.get(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						var bans = JSON.parse(rawData);
+						bans.forEach((data) => {
+							data.user = new iUser(discord, data.user)
+						})
+						resolve(bans);
+						return
+					}
+					reject(rawData);
+				}
+			)
+		}) 
+	}
+	
 	
 	
 	

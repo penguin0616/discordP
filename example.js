@@ -1,4 +1,4 @@
-const discordp = require("PATH_TO_MAIN_FOLDER/main.js");
+const discordp = require("PATH_TO_MAIN_FOLDER/index.js");
 
 var bot = new discordp({
 	debug: true, // if ur into debugging mode and wanna help me by sending me bugs
