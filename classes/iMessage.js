@@ -54,6 +54,11 @@ class iMessage extends iBase {
 		return this.discord.channels.find(c => c.id == this.channel_id);
 	}
 	
+	get isDM() {
+		if (this.channel && this.channel.isDMChannel == true) return true;
+		return false;
+	}
+	
 	get guild() {
 		if (this.channel && this.channel.guild_id) return this.discord.guilds.find(g => g.id == this.channel.guild_id);
 	}
@@ -71,7 +76,7 @@ class iMessage extends iBase {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					if (response.statusCode==204) return resolve();
-					reject('delete failed for unknown reason');
+					reject(rawData);
 				}
 			)
 		})
@@ -87,7 +92,7 @@ class iMessage extends iBase {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					if (response.statusCode==204) return resolve();
-					reject('pin failed for unknown reason');
+					reject(rawData);
 				}
 			)
 		})
@@ -103,7 +108,7 @@ class iMessage extends iBase {
 				function(error, response, rawData) {
 					if (error) return reject(error);
 					if (response.statusCode==204) return resolve();
-					reject('unpin failed for unknown reason');
+					reject(rawData);
 				}
 			)
 		})
@@ -123,7 +128,7 @@ class iMessage extends iBase {
 					
 					if (response.statusCode==200) return resolve(new iMessage(discord, JSON.parse(rawData)))
 					
-					reject('edit failed for unknown reason');
+					reject(rawData);
 				}
 			)
 		})

@@ -14,8 +14,6 @@ class iDMChannel extends iChannel {
 			var user = new iUser(this.discord, rawUser);
 			this.recipients.push(user);
 		}
-		
-		
 	}
 	
 	get owner() {

@@ -45,7 +45,7 @@ class baseSocket {
 	
 	send(packet) {
 		if (this.connected == false) {
-			if (this.discord.debug) console.log(`[${this.type}]: Dumped a packet`);
+			if (this.discord.debug) console.log(`[${this.type}]: Dumped a packet:`, packet);
 			return false;
 		}
 		if (typeof(packet) != 'string') packet = JSON.stringify(packet);

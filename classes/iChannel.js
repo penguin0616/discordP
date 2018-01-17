@@ -19,6 +19,10 @@ class iChannel extends iBase {
 		if (this.guild_id == undefined) return undefined;
 		return this.discord.guilds.find(g => g.id == this.guild_id)
 	}
+	
+	get isDMChannel() {
+		return this.type == classHelper.constants().CHANNELS.DM || this.type == classHelper.constants().CHANNELS.GROUP_DM
+	}
 }
 
 

@@ -9,6 +9,8 @@ class iUser extends iBase {
 			delete data.user;
 		}
 		for (var index in data) this[index] = data[index];
+		
+		if (this.bot == undefined) this.bot = false;
 	}
 
 	get fullName() { return `${this.username}#${this.discriminator}` }

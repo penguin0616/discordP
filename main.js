@@ -21,6 +21,7 @@ const iTextChannel = require("./classes/iTextChannel.js");
 const iVoiceChannel = require("./classes/iVoiceChannel.js");
 const iChannelCategory = require("./classes/iChannelCategory.js");
 const iVoiceConnection = require("./classes/iVoiceConnection.js");
+const iRole = require("./classes/iRole.js");
 
 // this
 class discordp {
@@ -228,7 +229,7 @@ function setupGateway(session) {
 			last = msg;
 		}
 		if (last.pinned != last2.pinned) return; // just a pin
-		eEvents.emit('MESSAGE_EDIT', last, last2);
+		eEvents.emit('MESSAGE_EDIT', last, last2); // new, old
 		info.current = msg;
 	})
 	iEvents.on('MESSAGE_DELETE', (d) => {
@@ -283,7 +284,7 @@ function setupGateway(session) {
 		if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(session, d);
 		else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(session, d);
 		else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(session, d);
-		else if (d.type == constants.CHANNELS.DM) channel = new iDMChannel(session, d); 
+		else if (d.type == constants.CHANNELS.DM || d.type == constants.CHANNELS.GROUP_DM) channel = new iDMChannel(session, d); 
 		else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
 		
 		if (channel.guild) {
@@ -352,6 +353,7 @@ function setupGateway(session) {
 		if (data.user_id == session.user.id) {
 			console.log('UPDATE', data)
 			var con = session.voiceConnections.find(c => c.guild_id==data.guild_id)
+			if (con==undefined) return console.log('ohno panic time!');
 			con.session_id = data.session_id;
 			con.user_id = data.user_id;
 			
@@ -394,9 +396,18 @@ function setupGateway(session) {
 		// not sure what to do with this
 	})
 	
+	iEvents.on('RELATIONSHIP_REMOVE', (d) => {
+		// asd
+	})
+	
+	iEvents.on('USER_SETTINGS_UPDATE', (d) => {
+		// didnt think bots had this
+	})
+	
 	iEvents.on('GUILD_ROLE_UPDATE', (d) => {
 		var role = new iRole(session, d);
 		var guild = session.guilds[role.guild_id];
+		if (guild == undefined) return console.log("GUILD_ROLE_UPDATE Panic:", "Role update for undefined guild?");
 		var index = guild.roles.findIndex(r => r.id==role.id);
 		guild.roles[index] = role;
 	})
