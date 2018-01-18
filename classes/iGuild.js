@@ -233,7 +233,64 @@ class iGuild extends iBase {
 		}) 
 	}
 	
+	kickMember(id, reason) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.kickMember, {"guild.id": this.id, "user.id": id});
+			
+			if (classHelper.snowflake(reason)==true) {
+				url = url + "?reason=" + reason
+			}
+			
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
+				}
+			)
+		})
+	}
 	
+	banMember(id, reason, delete_message_days) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.banMember, {"guild.id": this.id, "user.id": id});
+			
+			if (classHelper.snowflake(delete_message_days) == false) delete_message_days = 0;
+			url = url + "?delete-message-days=" + delete_message_days;
+			
+			if (classHelper.snowflake(reason)==true) {
+				url = url + "&reason=" + reason
+			}
+			
+			discord.http.put(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
+	unbanUser(id) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.banMember, {"guild.id": this.id, "user.id": id});
+			
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
+				}
+			)
+		})
+	}
 	
 	
 	

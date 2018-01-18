@@ -6,7 +6,11 @@ module.exports = {
 	me: "/api/v6/users/@me",
 	
 	bans: "/api/v6/guilds/{guild.id}/bans",
+	banMember: "/api/v6/guilds/{guild.id}/bans/{user.id}",
+	kickMember: "/api/v6/guilds/{guild.id}/members/{user.id}",
+	
 	invites: "/api/v6/guilds/{guild.id}/invites",
+	
 	emojis: "/api/v6/guilds/{guild.id}/emojis",
 	deleteEmoji: "/api/v6/guilds/{guild.id}/emojis/{id}",
 	

@@ -65,6 +65,38 @@ class iGuildMember extends iUser {
 		})
 	}
 	
+	kick(reason) {
+		if (this.guild == undefined) {
+			return (new Promise((resolve, reject) => {reject('iGuildMember seems to be missing guild?')}))
+		}
+		return this.guild.kickMember(this.id, reason);
+	}
+	
+	ban(reason, delete_message_days) {
+		if (this.guild == undefined) {
+			return (new Promise((resolve, reject) => {reject('iGuildMember seems to be missing guild?')}))
+		}
+		return this.guild.banMember(this.id, reason, delete_message_days);
+	}
+	
+	/*
+	ban(reason, delete_message_days) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.banMember, {"guild.id": this.guild_id, "user.id": this.id})
+			if (delete_message_days && classHelper.snowflake(delete_message_days)==true) url = url + "?delete-message-days=" + delete_message_days
+			discord.http.put(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
+				}
+			)
+		})
+	}
+	*/
+	
 }
 
 module.exports = iGuildMember;
