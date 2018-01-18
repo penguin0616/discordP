@@ -61,6 +61,20 @@ module.exports.formatURL = function(rawUrl, formats) {
 	return rawUrl
 }
 
+module.exports.convertImage = function(image) {
+	if (!image || !(image instanceof Buffer)) image = null;
+	else {
+		const types = {
+			0xFFD8FF: "image/jpg",
+			0x89504E: "image/png"
+		};
+		const magic = image.readUIntBE(0, 3);
+		const type = types[magic];
+		if (!type) image = null;
+		else image = `data:${type};base64,` + image.toString("base64");
+	}
+	return image;
+}
 
 
 

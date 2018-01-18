@@ -60,17 +60,7 @@ class iUser extends iBase {
 		email = email || user.email;
 		newPassword = newPassword || null;
 		
-		if (!avatar || !(avatar instanceof Buffer)) avatar = null;
-		else {
-			const types = {
-				0xFFD8FF: "image/jpg",
-				0x89504E: "image/png"
-			};
-			const magic = avatar.readUIntBE(0, 3);
-			const type = types[magic];
-			if (!type) avatar = null;
-			else avatar = `data:${type};base64,` + avatar.toString("base64");
-		}
+		avatar = classHelper.convertImage(avatar);
 		
 		var data = {
 			username: username,

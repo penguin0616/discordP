@@ -191,6 +191,48 @@ class iGuild extends iBase {
 		}) 
 	}
 	
+	deleteEmoji(id) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.deleteEmoji, {"guild.id": this.id, "id": id})
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) {
+						return resolve();
+					}
+					return reject("Failed: either the ID of the emoji doesn't exist, or the id wasn't submitted in string form")
+				}
+			)
+		}) 
+	}
+	
+	uploadEmoji(name, content) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			if (typeof(name) != 'string') return reject('expected a name for the first argument in uploadEmoji');
+			content = classHelper.convertImage(content);
+			if (content == null) return reject('expected a buffer for the second argument in uploadEmoji');
+			var url = classHelper.formatURL(discord.endpoints.emojis, {"guild.id": this.id});
+			discord.http.post(
+				url,
+				JSON.stringify({
+					"image": content,
+					"name": name
+				}),
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==201) {
+						resolve(JSON.parse(rawData));
+						return;
+					}
+					reject(rawData);
+				}
+			)
+		}) 
+	}
+	
 	
 	
 	

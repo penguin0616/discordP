@@ -8,6 +8,7 @@ module.exports = {
 	bans: "/api/v6/guilds/{guild.id}/bans",
 	invites: "/api/v6/guilds/{guild.id}/invites",
 	emojis: "/api/v6/guilds/{guild.id}/emojis",
+	deleteEmoji: "/api/v6/guilds/{guild.id}/emojis/{id}",
 	
 	createDM: "/api/v6/users/@me/channels",
 	channelPin: "/api/v6/channels/{channel.id}/pins/{message.id}",

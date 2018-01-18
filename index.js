@@ -363,6 +363,10 @@ function setupGateway(session) {
 			//if (session.debug) console.log('Someone left a voice call.');
 		}
 	})
+	
+	iEvents.on('GUILD_EMOJIS_UPDATE', (d) => {
+		// no use
+	})
 
 	iEvents.on('MESSAGE_REACTION_ADD', (d) => {
 		eEvents.emit('MESSAGE_REACTION_ADD', d) // could support fully sometime later
