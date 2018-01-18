@@ -155,11 +155,34 @@ class iGuild extends iBase {
 						invites.forEach((invite) => {
 							invite.guild = discord.guilds.find(g => g.id == invite.guild.id);
 							if (invite.inviter) {
-								invite.inviter = invite.guild.members.find((m) => m.id==invite.inviter.id)
+								// not sure whether i should make it guild members or not; will go for not atm
+								invite.inviter = new iUser(discord, invite.inviter); //invite.guild.members.find((m) => m.id==invite.inviter.id)
 							}
 							invite.channel = discord.channels.find(c => c.id == invite.channel.id);
 						})
-						resolve(invites);;
+						resolve(invites);
+						return
+					}
+					reject(rawData);
+				}
+			)
+		}) 
+	}
+	
+	getEmojis() {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.emojis, {"guild.id": this.id})
+			discord.http.get(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						var emojis = JSON.parse(rawData);
+						emojis.forEach((emoji) => {
+							emoji.user = new iUser(discord, emoji.user);
+						})
+						resolve(emojis);
 						return
 					}
 					reject(rawData);
