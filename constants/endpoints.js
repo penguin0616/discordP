@@ -6,6 +6,7 @@ module.exports = {
 	me: "/api/v6/users/@me",
 	
 	bans: "/api/v6/guilds/{guild.id}/bans",
+	invites: "/api/v6/guilds/{guild.id}/invites",
 	
 	createDM: "/api/v6/users/@me/channels",
 	channelPin: "/api/v6/channels/{channel.id}/pins/{message.id}",

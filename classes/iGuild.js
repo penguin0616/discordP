@@ -121,7 +121,6 @@ class iGuild extends iBase {
 	get owner() { return this.members.find(m => m.id==this.owner_id) }
 	
 	getBans() {
-		// /api/v6/guilds/278741112867389451/bans
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.bans, {"guild.id": this.id})
@@ -135,6 +134,32 @@ class iGuild extends iBase {
 							data.user = new iUser(discord, data.user)
 						})
 						resolve(bans);
+						return
+					}
+					reject(rawData);
+				}
+			)
+		}) 
+	}
+	
+	getInvites() {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.invites, {"guild.id": this.id})
+			discord.http.get(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						var invites = JSON.parse(rawData);
+						invites.forEach((invite) => {
+							invite.guild = discord.guilds.find(g => g.id == invite.guild.id);
+							if (invite.inviter) {
+								invite.inviter = invite.guild.members.find((m) => m.id==invite.inviter.id)
+							}
+							invite.channel = discord.channels.find(c => c.id == invite.channel.id);
+						})
+						resolve(invites);;
 						return
 					}
 					reject(rawData);
