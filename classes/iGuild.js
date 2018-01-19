@@ -294,6 +294,63 @@ class iGuild extends iBase {
 	
 	
 	
+	deleteInvite(inviteCode) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.deleteInvite, {"code": inviteCode});
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) return resolve(rawData);
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
+	// method not allowed for bots apparently; probably why i didnt see it documented in the api
+	// just gonna leave it here i guess since i already coded it
+	createInvite(max_age, max_uses, temporary_membership) {
+		// {"max_age":0,"max_uses":1,"temporary":true}
+		// {"max_age":1800,"max_uses":0,"temporary":false}
+		
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			if (classHelper.snowflake(max_age)==false) return reject('max_age argument expected a number');
+			if (classHelper.snowflake(max_uses)==false) return reject('max_uses argument expected a number');
+			if (typeof(temporary_membership) != 'boolean') return reject('temporary_membership expected a boolean');
+			
+			var url = classHelper.formatURL(discord.endpoints.invites, {"guild.id": this.id})
+			discord.http.post(
+				url,
+				JSON.stringify({
+					"max_age": max_age,
+					"max_uses": max_uses,
+					"temporary_membership": temporary_membership
+				}),
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						var invites = JSON.parse(rawData);
+						invites.forEach((invite) => {
+							invite.guild = discord.guilds.find(g => g.id == invite.guild.id);
+							if (invite.inviter) {
+								invite.inviter = new iUser(discord, invite.inviter);
+							}
+							invite.channel = discord.channels.find(c => c.id == invite.channel.id);
+						})
+						resolve(invites);
+						return
+					}
+					reject(rawData);
+				}
+			)
+		}) 
+	}
+	
+	
+	
 	
 	
 }

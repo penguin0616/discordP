@@ -73,6 +73,7 @@ function connect(session, reconnecting) {
 	
 	session.socket.on("close", function(code) {
 		session.connected = false;
+		console.log('closed')
 		if (session.debug) {
 			var err = code;
 			console.log("[gateway]: Connection failed:", err);
@@ -88,6 +89,7 @@ function connect(session, reconnecting) {
 	
 	session.socket.on("error", function(err) {
 		session.connected = false;
+		console.log('error')
 		if (session.debug) console.log('Error:', err);
 	})
 }

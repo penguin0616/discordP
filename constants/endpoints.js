@@ -10,6 +10,7 @@ module.exports = {
 	kickMember: "/api/v6/guilds/{guild.id}/members/{user.id}",
 	
 	invites: "/api/v6/guilds/{guild.id}/invites",
+	deleteInvite: "/api/v6/invite/{code}",
 	
 	emojis: "/api/v6/guilds/{guild.id}/emojis",
 	deleteEmoji: "/api/v6/guilds/{guild.id}/emojis/{id}",
