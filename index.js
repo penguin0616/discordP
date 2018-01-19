@@ -36,6 +36,8 @@ class discordp {
 		this.loggedIn = false;
 		this.connected = false;
 		
+		this.constants = constants;
+		
 		// events/debug
 		this.events = new eventEmitter();
 		if (data.debug==true) {this.debug=true; console.log("Running a Discordp session in debug mode!");}

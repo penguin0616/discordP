@@ -349,7 +349,60 @@ class iGuild extends iBase {
 		}) 
 	}
 	
-	
+	getAuditLogs(user_id, action_type, before, limit) {
+		// action_type: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
+		// if you're reading this, you can specify action_type with the discord client object's constants object. ie client.constants.AUDIT_LOG_EVENTS.GUILD_UPDATE
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.audit_logs, {"guild.id": this.id})
+			url = url + "?"
+			
+			// probably a bad way of doing this
+			var asd = {
+				"user_id": user_id,
+				"action_type": action_type,
+				"before": before,
+				"limit": limit
+			}
+			
+			var first = true
+			
+			for (var i in asd) {
+				if (asd[i] != undefined) {
+					var bonus = ""
+					if (first == true) { bonus = "&"; first = false; console.log('same') }
+					url = url + bonus + i + "=" + asd[i]	
+				}
+			}
+			
+			discord.http.get(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						var data = JSON.parse(rawData);
+						
+						for (var i in data.users) {
+							data.users[i] = new iUser(discord, data.users[i])
+						}
+						
+						for (var i in data.audit_log_entries) {
+							for (var j in constants.AUDIT_LOG_EVENTS) {
+								if (constants.AUDIT_LOG_EVENTS[j] == data.audit_log_entries[i].action_type) {
+									data.audit_log_entries[i]._action_type_reference = j;
+								}
+							}
+						}
+						
+						resolve(data);
+						return
+					}
+					reject(rawData);
+				}
+			)
+		}) 
+		
+	}
 	
 	
 	

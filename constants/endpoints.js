@@ -5,6 +5,8 @@ module.exports = {
 	login: "/api/v6/auth/login",
 	me: "/api/v6/users/@me",
 	
+	audit_logs: "/api/v6/guilds/{guild.id}/audit-logs",
+	
 	bans: "/api/v6/guilds/{guild.id}/bans",
 	banMember: "/api/v6/guilds/{guild.id}/bans/{user.id}",
 	kickMember: "/api/v6/guilds/{guild.id}/members/{user.id}",
