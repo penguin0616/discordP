@@ -355,8 +355,9 @@ function setupGateway(session) {
 		if (data.user_id == session.user.id) {
 			console.log('B')
 			var con = session.voiceConnections.find(c => c.guild_id == data.guild_id);
-			if (con == undefined) throw "ERRR:" + JSON.stringify(data);
-			for (var i in data) con[i] = data[i];
+			if (con != undefined) {
+				for (var i in data) con[i] = data[i];
+			}
 			
 			/*
 			console.log('stateu', data)
@@ -375,9 +376,10 @@ function setupGateway(session) {
 	iEvents.on('VOICE_SERVER_UPDATE', (data) => {
 		console.log('C')
 		var con = session.voiceConnections.find(c => c.guild_id == data.guild_id);
-		for (var i in data) con[i] = data[i];
-		
-		con.init();
+		if (con != undefined) {
+			for (var i in data) con[i] = data[i];
+			con.init();
+		}
 		
 		/*
 		var con = session.voiceConnections.find(c => c.guild_id==data.guild_id)

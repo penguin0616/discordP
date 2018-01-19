@@ -1,6 +1,7 @@
 const classHelper = require('../classes/classHelper.js');
 const request = require('./request.js');
 const endpoints = require('../constants/endpoints.js');
+const ratelimit = require("./ratelimit.js");
 
 module.exports = function() {
 	var lib = {};
@@ -10,11 +11,26 @@ module.exports = function() {
 			'Content-Type': 'application/json'
 		}
 		if (token) headers['Authorization'] = token;
-		return request.post({
+		
+		request.post({
 			url: endpoints.baseUrl + path,
 			postData: postData,
 			headers: headers
 		}, handler)
+		
+		/*
+		function(a,b,c) {
+			var res = handler(a, b, c);
+			try {
+				var data = JSON.parse(res)
+				if (data.message == "You are being ratelimited." && data.retry_after != undefined) {
+					ratelimit.retry();
+				}
+			} catch (e) {}
+		}
+		*/
+		
+		
 	}
 	lib.get = function(path, handler) {
 		let headers = {

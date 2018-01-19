@@ -38,6 +38,7 @@ class iTextChannel extends iChannel {
 					var data = JSON.parse(rawData);
 					if (response.statusCode==200) return resolve(new iMessage(discord, data))
 					reject('Unable to send message: ' + rawData);
+					return rawData;
 				}
 			)
 		})

@@ -26,6 +26,7 @@ module.exports = {
 	
 	
 	modifyGuildMember: "/api/v6/guilds/{guild.id}/members/{user.id}",
-	modifyCurrentUsersNick: "/api/v6/guilds/{guild.id}/members/@me/nick"
+	modifyCurrentUsersNick: "/api/v6/guilds/{guild.id}/members/@me/nick",
+	manageMemberRole: "/api/v6/guilds/{guild.id}/members/{user.id}/roles/{role.id}"
 	
 }

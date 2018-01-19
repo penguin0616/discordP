@@ -79,6 +79,46 @@ class iGuildMember extends iUser {
 		return this.guild.banMember(this.id, reason, delete_message_days);
 	}
 	
+	assignRole(arg) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			
+			var id = (classHelper.getClass(arg) == 'iRole') ? arg.id : arg;
+			if (classHelper.snowflake(id) == false) return reject('assignRole arg#1 expected an Id');
+
+			var url = classHelper.formatURL(discord.endpoints.manageMemberRole, {"guild.id": this.guild_id, "user.id": this.id, "role.id": id})
+			
+			discord.http.put(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve(rawData);
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
+	unassignRole(arg) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			
+			var id = (classHelper.getClass(arg) == 'iRole') ? arg.id : arg;
+			if (classHelper.snowflake(id) == false) return reject('unassignRole arg#1 expected an Id');
+
+			var url = classHelper.formatURL(discord.endpoints.manageMemberRole, {"guild.id": this.guild_id, "user.id": this.id, "role.id": id})
+			
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve(rawData);
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
 	/*
 	ban(reason, delete_message_days) {
 		var discord = this.discord;
