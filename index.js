@@ -351,17 +351,37 @@ function setupGateway(session) {
 		//if (classHelper.creator(data.user_id)) console.log('VOICE_STATE_UPDATE', data);
 		
 		if (data.user_id == session.user.id) {
-			console.log('UPDATE', data)
+			console.log('B')
+			var con = session.voiceConnections.find(c => c.guild_id == data.guild_id);
+			if (con == undefined) throw "ERRR:" + JSON.stringify(data);
+			for (var i in data) con[i] = data[i];
+			
+			/*
+			console.log('stateu', data)
 			var con = session.voiceConnections.find(c => c.guild_id==data.guild_id)
 			if (con==undefined) return console.log('ohno panic time!');
 			con.session_id = data.session_id;
 			con.user_id = data.user_id;
+			*/
 			
 		}
 		
 		if (data.channel_id==null) {
 			//if (session.debug) console.log('Someone left a voice call.');
 		}
+	})
+	iEvents.on('VOICE_SERVER_UPDATE', (data) => {
+		console.log('C')
+		var con = session.voiceConnections.find(c => c.guild_id == data.guild_id);
+		for (var i in data) con[i] = data[i];
+		
+		con.init();
+		
+		/*
+		var con = session.voiceConnections.find(c => c.guild_id==data.guild_id)
+		console.log('serveru', data);
+		con.wat = data.token;
+		*/
 	})
 	
 	iEvents.on('GUILD_EMOJIS_UPDATE', (d) => {
@@ -414,16 +434,6 @@ function setupGateway(session) {
 		if (guild == undefined) return console.log("GUILD_ROLE_UPDATE Panic:", "Role update for undefined guild?");
 		var index = guild.roles.findIndex(r => r.id==role.id);
 		guild.roles[index] = role;
-	})
-	
-	iEvents.on('VOICE_SERVER_UPDATE', (d) => {
-		var con = session.voiceConnections.find(c => c.guild_id==d.guild_id)
-		con.token = d.token;
-		con.endpoint = d.endpoint;
-		
-		con.init();
-		
-		//console.log("VOICE_SERVER_UPDATE", d);
 	})
 	
 	

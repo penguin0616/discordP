@@ -35,6 +35,10 @@ class iVoiceChannel extends iChannel {
 			}
 			var yay = discord.gateway.send(data)
 			if (yay==true) {
+				var con = new iVoiceConnection(discord, self);
+				console.log('A')
+				resolve(con);
+				/*
 				var index = discord.voiceConnections.findIndex(v => v.guild_id == self.guild_id);
 				if (index != -1) discord.voiceConnections.splice(index, 1);
 
@@ -42,7 +46,7 @@ class iVoiceChannel extends iChannel {
 				discord.voiceConnections.push(con);
 				
 				resolve(con);
-				
+				*/
 				return;
 			}
 			reject();

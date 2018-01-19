@@ -33,15 +33,14 @@ class voiceSocket extends baseSocket {
 		connect(this);
 	}
 	
-	get guild_id() { return this.connection.guild_id }
 	get channel_id() { return this.connection.channel_id }
+	get guild_id() { return this.connection.guild_id }
+	// 
 	get user_id() { return this.connection.user_id }
 	get session_id() { return this.connection.session_id }
 }
 
 function connect(session, reconnecting) {
-	console.log('server:', session.server);
-	
 	session.socket.on('open', () => {
 		session.connected = true;
 		console.log('opened');
@@ -53,10 +52,26 @@ function connect(session, reconnecting) {
 		var data = JSON.parse(rawData);
 		if (data.s != null) session.seq = data.s;
 		
+		
+		
 		// handle
 		if (data.op == ops.HELLO) {
-			if (reconnecting) session.resume();
-			else session.identify();
+			session.heartbeat_interval = data.d.heartbeat_interval * .75;
+			if (reconnecting)
+				session.resume();
+			else
+				session.identify();
+		} else if (data.op == ops.READY) {
+			if (session.discord.debug) console.log('Got voice ready event!');
+			session.ssrc = data.d.ssrc;
+			session.port = data.d.port;
+			session.modes = data.d.modes;
+			session.ip = data.d.ip;
+			
+			setInterval(function() {
+				session.socket.ping();
+			}, session.heartbeat_interval);
+			
 		} else console.log("[voiceSocket]: unrecognized op:", data);
 
 		
@@ -67,7 +82,7 @@ function connect(session, reconnecting) {
 		console.log('closed:', code);
 	})
 	session.socket.on("error", function(err) {
-		session.connected = true;
+		session.connected = false;
 		console.log('error:', err);
 	})
 }

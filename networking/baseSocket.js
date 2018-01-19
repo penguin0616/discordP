@@ -87,10 +87,9 @@ class baseSocket {
 					"server_id": this.guild_id,
 					"user_id": this.user_id,
 					"session_id": this.session_id,
-					"token": this.discord.internal.token
+					"token": this.connection.token//this.discord.internal.token
 				}
 			}
-			console.log(identify);
 		} else throw 'attempt to identify a baseSocket';
 		
 		this.send(identify);
