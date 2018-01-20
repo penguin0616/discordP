@@ -84,7 +84,7 @@ class iGuildMember extends iUser {
 		return new Promise((resolve, reject) => {
 			
 			var id = (classHelper.getClass(arg) == 'iRole') ? arg.id : arg;
-			if (classHelper.snowflake(id) == false) return reject('assignRole arg#1 expected an Id');
+			if (typeof(id) != 'string') return reject('assignRole arg#1 expected an Id');
 
 			var url = classHelper.formatURL(discord.endpoints.manageMemberRole, {"guild.id": this.guild_id, "user.id": this.id, "role.id": id})
 			
@@ -104,7 +104,7 @@ class iGuildMember extends iUser {
 		return new Promise((resolve, reject) => {
 			
 			var id = (classHelper.getClass(arg) == 'iRole') ? arg.id : arg;
-			if (classHelper.snowflake(id) == false) return reject('unassignRole arg#1 expected an Id');
+			if (typeof(id) != 'string') return reject('unassignRole arg#1 expected an Id');
 
 			var url = classHelper.formatURL(discord.endpoints.manageMemberRole, {"guild.id": this.guild_id, "user.id": this.id, "role.id": id})
 			

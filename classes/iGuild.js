@@ -54,7 +54,7 @@ class iGuild extends iBase {
 		this.roles = [];
 		for (var i in data.roles) {
 			var v = data.roles[i];
-			var role = new iRole(this.discord, v);
+			var role = new iRole(this.discord, v, this.id);
 			this.roles.push(role);
 		}
 		
@@ -258,7 +258,7 @@ class iGuild extends iBase {
 		return new Promise((resolve, reject) => {
 			var url = classHelper.formatURL(discord.endpoints.banMember, {"guild.id": this.id, "user.id": id});
 			
-			if (classHelper.snowflake(delete_message_days) == false) delete_message_days = 0;
+			if (typeof(delete_message_days) != 'number') delete_message_days = 0;
 			url = url + "?delete-message-days=" + delete_message_days;
 			
 			if (classHelper.snowflake(reason)==true) {
@@ -317,8 +317,8 @@ class iGuild extends iBase {
 		
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
-			if (classHelper.snowflake(max_age)==false) return reject('max_age argument expected a number');
-			if (classHelper.snowflake(max_uses)==false) return reject('max_uses argument expected a number');
+			if (typeof(max_age)!='number') return reject('max_age argument expected a number');
+			if (typeof(max_uses)!='number') return reject('max_uses argument expected a number');
 			if (typeof(temporary_membership) != 'boolean') return reject('temporary_membership expected a boolean');
 			
 			var url = classHelper.formatURL(discord.endpoints.invites, {"guild.id": this.id})
