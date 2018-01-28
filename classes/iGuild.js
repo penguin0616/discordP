@@ -309,8 +309,7 @@ class iGuild extends iBase {
 		})
 	}
 	
-	// method not allowed for bots apparently; probably why i didnt see it documented in the api
-	// just gonna leave it here i guess since i already coded it
+	/*
 	createInvite(max_age, max_uses, temporary_membership) {
 		// {"max_age":0,"max_uses":1,"temporary":true}
 		// {"max_age":1800,"max_uses":0,"temporary":false}
@@ -348,6 +347,7 @@ class iGuild extends iBase {
 			)
 		}) 
 	}
+	*/
 	
 	getAuditLogs(user_id, action_type, before, limit) {
 		// action_type: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events

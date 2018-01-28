@@ -73,13 +73,13 @@ function connect(session, reconnecting) {
 	
 	session.socket.on("close", function(code) {
 		session.connected = false;
-		console.log('closed')
-		if (session.debug) {
+		console.log('closed', code)
+		if (session.discord.debug) {
 			var err = code;
 			console.log("[gateway]: Connection failed:", err);
 		}
 		if (session.autoReconnect==true) {
-			if (session.debug) console.log('AutoReconnect enabled: reconnecting');
+			if (session.discord.debug) console.log('AutoReconnect enabled: reconnecting');
 			setTimeout(function() {
 				session.socket = session.newSocket();
 				connect(session, true);
@@ -89,8 +89,8 @@ function connect(session, reconnecting) {
 	
 	session.socket.on("error", function(err) {
 		session.connected = false;
-		console.log('error')
-		if (session.debug) console.log('Error:', err);
+		console.log('error', err)
+		if (session.discord.debug) console.log('Error:', err);
 	})
 }
 

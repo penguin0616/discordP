@@ -3,6 +3,7 @@ const iBase = require("./iBase.js");
 const iChannel = require("./iChannel.js");
 const iMessage = require("./iMessage.js");
 const iPermissions = require("./iPermissions.js");
+const iUser = require("./iUser.js");
 
 
 
@@ -99,6 +100,41 @@ class iTextChannel extends iChannel {
 				}
 			)
 		})
+	}
+	
+	createInvite(max_age, max_uses, temporary_membership) {
+		// {"max_age":0,"max_uses":1,"temporary":true}
+		// {"max_age":1800,"max_uses":0,"temporary":false}
+		
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			if (typeof(max_age)!='number') return reject('max_age argument expected a number');
+			if (typeof(max_uses)!='number') return reject('max_uses argument expected a number');
+			if (typeof(temporary_membership) != 'boolean') return reject('temporary_membership expected a boolean');
+			
+			var url = classHelper.formatURL(discord.endpoints.createInvite, {"channel.id": this.id})
+			discord.http.post(
+				url,
+				JSON.stringify({
+					"max_age": max_age,
+					"max_uses": max_uses,
+					"temporary_membership": temporary_membership
+				}),
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						var invite = JSON.parse(rawData);
+						invite.guild = discord.guilds.find(g => g.id == invite.guild.id);
+						if (invite.inviter) {invite.inviter = new iUser(discord, invite.inviter);}
+						invite.channel = discord.channels.find(c => c.id == invite.channel.id);
+						console.log(invite);
+						resolve(invite);
+						return
+					}
+					reject(rawData);
+				}
+			)
+		}) 
 	}
 }
 

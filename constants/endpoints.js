@@ -11,6 +11,7 @@ module.exports = {
 	banMember: "/api/v6/guilds/{guild.id}/bans/{user.id}",
 	kickMember: "/api/v6/guilds/{guild.id}/members/{user.id}",
 	
+	createInvite: "/api/v6/channels/{channel.id}/invites",
 	invites: "/api/v6/guilds/{guild.id}/invites",
 	deleteInvite: "/api/v6/invite/{code}",
 	
