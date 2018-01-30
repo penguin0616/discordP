@@ -194,7 +194,6 @@ class iTextChannel extends iChannel {
 			
 			var get = function() {
 				if (done == true) {
-					console.log('done', i, msgs.length);
 					resolve(msgs);
 					return
 				}
