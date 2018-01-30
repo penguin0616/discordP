@@ -32,6 +32,18 @@ module.exports = function() {
 		
 		
 	}
+	
+	lib.post2 = function(path, handler) {
+		let headers = {
+			'Content-Type': 'multipart/form-data'
+		}
+		if (token) headers['Authorization'] = token;
+		return request.post({
+			url: endpoints.baseUrl + path,
+			headers: headers
+		}, handler)
+	}
+	
 	lib.get = function(path, handler) {
 		let headers = {
 			'Content-Type': 'application/json'

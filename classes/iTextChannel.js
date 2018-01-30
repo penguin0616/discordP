@@ -1,3 +1,4 @@
+const fs = require('fs');
 const classHelper = require('./classHelper.js');
 const iBase = require("./iBase.js");
 const iChannel = require("./iChannel.js");
@@ -9,11 +10,14 @@ const iUser = require("./iUser.js");
 
 class iTextChannel extends iChannel {
 	constructor(discord, data, guild) {
-		for (var i in data.permission_overwrites) {
-			var v = data.permission_overwrites[i];
-			
-			v.deny = new iPermissions(v.deny, data.type);
-			v.allow = new iPermissions(v.allow, data.type);
+		
+		if (data.permission_overwrites) {
+			for (var i in data.permission_overwrites) {
+				var v = data.permission_overwrites[i];
+				
+				v.deny = new iPermissions(v.deny, data.type);
+				v.allow = new iPermissions(v.allow, data.type);
+			}
 		}
 		
 		super(discord, data, guild);
@@ -29,9 +33,7 @@ class iTextChannel extends iChannel {
 				url,
 				JSON.stringify({
 					content: content,
-					//nonce: null, // dunno what that is
 					tts: tts || false,
-					// file: null, // what
 					embed: embed || null
 				}),
 				function(error, response, rawData) {
@@ -44,6 +46,32 @@ class iTextChannel extends iChannel {
 			)
 		})
 	}
+	/*
+	uploadFile(file, filename, content, tts, embed) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.createMessage, {"channel.id": this.id})
+			
+			console.log(file);
+			
+			if (typeof(file)=='string') {
+				var access = false;
+				try {
+					fs.accessSync(file, fs.constants.R_OK);
+					access = true;
+				} catch (err) {
+					access = false;
+				}
+				if (access == false) return reject("Can't read/access the filepath.");
+				file = fs.readFileSync(file).toString()
+			} else if (file instanceof Buffer) {
+				file = file.toString();
+			} else file = null;
+			
+			console.log(file);
+		})
+	}
+	*/
 	
 	bulkDelete(msgs) {
 		return new Promise((resolve, reject) => {
@@ -92,13 +120,102 @@ class iTextChannel extends iChannel {
 					var rawMsgs = JSON.parse(raw)
 					var msgs = []
 					
-					rawMsgs.forEach((msg) => {
-						msgs.push(new iMessage(discord, msg));
-					})
+					if (rawMsgs) {
+						rawMsgs.forEach((msg) => {
+							msgs.push(new iMessage(discord, msg));
+						})
+					}
 					
 					resolve(msgs);
 				}
 			)
+		})
+	}
+	
+	// usage should be monitored carefully
+	fetchMessagesBulk(limit, before, after, around) {
+		var discord = this.discord;
+		var dis = this;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.getChannelMessages, {"channel.id": this.id})
+			
+			if (typeof(limit) != 'number') limit = 100;
+			var remainder = limit % 100
+			var requests = Math.floor(limit/100);
+			
+			var msgs = [];
+			var lastId;
+			var i = 0;
+			var done = false;
+			
+			var get = function() {
+				if (done == true) {
+					resolve(msgs);
+					return
+				}
+				if (i==0) {
+					var desire = (requests == 0) ? remainder: 100
+					var res = dis.fetchMessages(100, before, after, around);
+				} else if (i == requests) {
+					var res = dis.fetchMessages(remainder, lastId);
+				} else {
+					var res = dis.fetchMessages(100, lastId);
+				}
+				res.then((data) => {
+					data.forEach((msg) => {
+						msgs.push(msg)
+					});
+					lastId = data[data.length - 1].id
+					i++;
+					if (i > requests) done = true;
+					if (i == requests && remainder == 0) done = true;
+					get();
+				})
+				res.catch((e) => {
+					i = requests;
+					reject(e);
+				})
+			}
+			get();
+		})
+	}
+	
+	// usage should be monitored carefully
+	fetchEveryMessage() {
+		var discord = this.discord;
+		var dis = this;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.getChannelMessages, {"channel.id": this.id})
+			
+			var msgs = [];
+			var lastId;
+			var i = 0;
+			var done = false;
+			
+			var get = function() {
+				if (done == true) {
+					console.log('done', i, msgs.length);
+					resolve(msgs);
+					return
+				}
+				var res = dis.fetchMessages(100, lastId);
+				res.then((data) => {
+					data.forEach((msg) => {
+						msgs.push(msg)
+					});
+					lastId = data[data.length - 1].id
+					i++;
+					if (data.length != 100) {
+						done = true;
+					}
+					get();
+				})
+				res.catch((e) => {
+					i = requests;
+					reject(e);
+				})
+			}
+			get();
 		})
 	}
 	

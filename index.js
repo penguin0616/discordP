@@ -447,7 +447,7 @@ function setupGateway(session) {
 	})
 	
 	iEvents.on('GUILD_ROLE_DELETE', (data) => {
-		var guild = session.guilds[data.guild_id];
+		var guild = session.guilds.find(g => g == data.guild_id)
 		var i = guild.roles.findIndex(v => v.id==data.role_id);
 		guild.roles.splice(i, 1);
 	})
