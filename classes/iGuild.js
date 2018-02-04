@@ -39,12 +39,6 @@ class iGuild extends iBase {
 	constructor(discord, data) {
 		super(discord, data)
 		
-		//classHelper.setHiddenProperty(this, 'data.members', data.members);
-		
-		//delete data.roles;
-		//delete data.channels;
-		//delete data.members;
-		
 		for (var index in data) {
 			var value = data[index]
 			this[index] = value;
@@ -354,7 +348,7 @@ class iGuild extends iBase {
 		// if you're reading this, you can specify action_type with the discord client object's constants object. ie client.constants.AUDIT_LOG_EVENTS.GUILD_UPDATE
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
-			var url = classHelper.formatURL(discord.endpoints.audit_logs, {"guild.id": this.id})
+			var url = classHelper.formatURL(discord.endpoints.auditLogs, {"guild.id": this.id})
 			url = url + "?"
 			
 			// probably a bad way of doing this
@@ -410,62 +404,6 @@ class iGuild extends iBase {
 
 
 module.exports = iGuild;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		/*
-		for (var index in data) {
-			var value = data[index]
-			if (index == 'roles') {
-				for (var key in value) { value[key] = new iRole(value[key]) }
-				this[index] = value;
-				
-			} else if (index == 'members') {
-				for (var key in value) { value[key] = new iGuildMember(value[key], this) }
-				this[index] = value;
-				
-			} else {
-				this[index] = value;
-			}
-		}
-		*/
-		
-		
-		/*
-		for (var index in members) {
-			var info = members[index]
-			var userInfo = info.user;
-			var roles = info.roles;
-			delete info.user
-			delete info.roles
-			
-			var customaryData = {
-				"roles": [],
-				"guild": this
-			}	
-			for (var j in userInfo) customaryData[j] = userInfo[j]
-			for (var j in info) customaryData[j] = info[j]
-			for (var j in roles) {
-				var roleId = roles[j]
-				var roleObj = this.roles.find(r => r.id==roleId);
-				customaryData.roles.push(roleObj);
-			}
-			if (customaryData.nick == undefined) customaryData.nick = null;
-			this.members.push(new iGuildMember(customaryData))
-		}
-		
-		*/
 
 
 

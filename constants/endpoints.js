@@ -5,7 +5,9 @@ module.exports = {
 	login: "/api/v6/auth/login",
 	me: "/api/v6/users/@me",
 	
-	audit_logs: "/api/v6/guilds/{guild.id}/audit-logs",
+	oauth2Application: "/api/v6/oauth2/applications/{id}",
+	
+	auditLogs: "/api/v6/guilds/{guild.id}/audit-logs",
 	
 	bans: "/api/v6/guilds/{guild.id}/bans",
 	banMember: "/api/v6/guilds/{guild.id}/bans/{user.id}",
@@ -24,6 +26,7 @@ module.exports = {
 	createMessage: "/api/v6/channels/{channel.id}/messages",
 	bulkDelete: "/api/v6/channels/{channel.id}/messages/bulk-delete",
 	getChannelMessages: "/api/v6/channels/{channel.id}/messages",
+	deleteChannel: "/api/v6/channels/{channel.id}",
 	
 	
 	modifyGuildMember: "/api/v6/guilds/{guild.id}/members/{user.id}",

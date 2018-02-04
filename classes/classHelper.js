@@ -13,7 +13,9 @@ module.exports.setHiddenProperty = function(state, name, value) {
 module.exports.clone = function(obj) {
 	var newObj = {}
 	for (var i in obj) {
-		newObj[i] = obj[i];
+		var v = obj[i];
+		if (typeof(v)=='object') newObj[i] = module.exports.clone(v)
+		else newObj[i] = obj[i];
 	}
 	return newObj;
 }

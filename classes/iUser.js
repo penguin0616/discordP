@@ -4,6 +4,9 @@ const iBase = require("./iBase.js");
 class iUser extends iBase {
 	constructor(discord, data) {
 		super(discord, data);
+		
+		var data = classHelper.clone(data);
+		
 		if (data.user) {
 			for (var i in data.user) this[i] = data.user[i];
 			delete data.user;
@@ -27,6 +30,21 @@ class iUser extends iBase {
 	
 	get note() {
 		return this.discord.notes.find(n => n.id==this.id);
+	}
+	
+	getApplication() {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.oauth2Application, {"id": this.id})
+			discord.http.get(
+				url,
+				function(error, response, rawData) {
+					var data = JSON.parse(rawData);
+					console.log(reponse.statusCode);
+					console.log(rawData);
+				}
+			)
+		})
 	}
 	
 	openDM() {

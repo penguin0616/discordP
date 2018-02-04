@@ -52,7 +52,7 @@ class discordp {
 		if (data.autoReconnect==true) {
 			this.autoReconnect=true;
 			if (data.reconnectDelay) this.reconnectDelay = data.reconnectDelay;
-			else this.reconnectDelay = 6000;
+			else this.reconnectDelay = 7000;
 		}
 		
 		// make categories
@@ -86,6 +86,10 @@ class discordp {
 			setupGateway(this);
 		})
 		prom.catch((e) => {throw "Failed to login to Discord."})
+	}
+	
+	inspect() {
+		return "Discordp Client"
 	}
 }
 
@@ -222,8 +226,8 @@ function setupGateway(session) {
 			internal.messages[msg.id].current = msg;
 			return;
 		}
-		var last = info.edits[info.edits.length]
-		var last2 = info.edits[info.edits.length - 1]
+		var last = info.edits[info.edits.length - 1]
+		var last2 = info.edits[info.edits.length - 2]
 		if (last == undefined && last2 == undefined) {
 			last = msg;
 			last2 = info.original;
@@ -447,7 +451,7 @@ function setupGateway(session) {
 	})
 	
 	iEvents.on('GUILD_ROLE_DELETE', (data) => {
-		var guild = session.guilds.find(g => g == data.guild_id)
+		var guild = session.guilds.find(g => g.id == data.guild_id);
 		var i = guild.roles.findIndex(v => v.id==data.role_id);
 		guild.roles.splice(i, 1);
 	})

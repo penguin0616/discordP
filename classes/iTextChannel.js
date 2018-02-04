@@ -204,6 +204,7 @@ class iTextChannel extends iChannel {
 					});
 					lastId = data[data.length - 1].id
 					i++;
+					console.log('msgs:', msgs.length);
 					if (data.length != 100) {
 						done = true;
 					}
@@ -251,6 +252,21 @@ class iTextChannel extends iChannel {
 				}
 			)
 		}) 
+	}
+	
+	delete() {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.deleteChannel, {"channel.id": this.id})
+			discord.http.delete(
+				url,
+				function(err, res, raw) {
+					if (err) reject(err);
+					if (res.statusCode==200) return resolve(raw);
+					reject(raw);
+				}
+			)
+		})
 	}
 }
 
