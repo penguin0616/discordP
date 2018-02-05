@@ -301,6 +301,29 @@ class iTextChannel extends iChannel {
 			)
 		})
 	}
+	
+	getPins() {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.channelPins, {"channel.id": this.id});
+			
+			discord.http.get(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						rawData = JSON.parse(rawData);
+						rawData.forEach((rawMsg, index) => {
+							rawData[index] = new iMessage(discord, rawMsg)
+						})
+						console.log(rawData);
+						return resolve(rawData);
+					}
+					reject(rawData);
+				}
+			)
+		})
+	}
 }
 
 module.exports = iTextChannel;

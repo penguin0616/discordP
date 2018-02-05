@@ -21,6 +21,7 @@ module.exports = {
 	deleteEmoji: "/api/v6/guilds/{guild.id}/emojis/{id}",
 	
 	createDM: "/api/v6/users/@me/channels",
+	channelPins: "/api/v6/channels/{channel.id}/pins",
 	channelPin: "/api/v6/channels/{channel.id}/pins/{message.id}",
 	manageMessage: "/api/v6/channels/{channel.id}/messages/{message.id}",
 	createMessage: "/api/v6/channels/{channel.id}/messages",
