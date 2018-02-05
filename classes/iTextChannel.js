@@ -316,7 +316,6 @@ class iTextChannel extends iChannel {
 						rawData.forEach((rawMsg, index) => {
 							rawData[index] = new iMessage(discord, rawMsg)
 						})
-						console.log(rawData);
 						return resolve(rawData);
 					}
 					reject(rawData);
