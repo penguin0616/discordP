@@ -63,6 +63,8 @@ class iMessage extends iBase {
 		if (this.channel && this.channel.guild_id) return this.discord.guilds.find(g => g.id == this.channel.guild_id);
 	}
 	
+	get selfOwned() {return this.author.id == this.discord.user.id}
+	
 	reply(content, tts, embed) {
 		return this.channel.sendMessage(`${this.author.mention}, ${content}`, tts, embed);
 	}
@@ -134,7 +136,17 @@ class iMessage extends iBase {
 		})
 	}
 	
-	get selfOwned() {return this.author.id == this.discord.user.id}
+	addReaction(emoji) {
+		return this.channel.addMessageReaction(this.id, emoji);
+	}
+	
+	deleteReaction(emoji, userId) {
+		return this.channel.deleteMessageReaction(this.id, emoji, userId);
+	}
+	
+	deleteReactions() {
+		return this.channel.deleteMessageReactions(this.id);
+	}
 }
 
 module.exports = iMessage;

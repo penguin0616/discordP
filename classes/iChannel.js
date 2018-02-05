@@ -23,6 +23,37 @@ class iChannel extends iBase {
 	get isDMChannel() {
 		return this.type == classHelper.constants().CHANNELS.DM || this.type == classHelper.constants().CHANNELS.GROUP_DM
 	}
+	
+	delete() {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.updateChannel, {"channel.id": this.id})
+			discord.http.delete(
+				url,
+				function(err, res, raw) {
+					if (err) reject(err);
+					if (res.statusCode==200) return resolve(raw);
+					reject(raw);
+				}
+			)
+		})
+	}
+	
+	modify(changes) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.updateChannel, {"channel.id": this.id})
+			discord.http.patch(
+				url,
+				JSON.stringify(changes),
+				function(err, res, raw) {
+					if (err) reject(err);
+					if (res.statusCode==200) return resolve(raw);
+					reject(raw);
+				}
+			)
+		})
+	}
 }
 
 

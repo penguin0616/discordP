@@ -254,16 +254,49 @@ class iTextChannel extends iChannel {
 		}) 
 	}
 	
-	delete() {
+	addMessageReaction(messageId, emoji) {
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
-			var url = classHelper.formatURL(discord.endpoints.deleteChannel, {"channel.id": this.id})
+			var url = classHelper.formatURL(discord.endpoints.manageReactions, {"channel.id": this.id, "message.id": messageId, "emoji": emoji, "user.id": "@me"});
+			
+			discord.http.put(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
+	deleteMessageReaction(messageId, emoji, userId) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.manageReactions, {"channel.id": this.id, "message.id": messageId, "emoji": emoji, "user.id": userId});
+			
 			discord.http.delete(
-				url,
-				function(err, res, raw) {
-					if (err) reject(err);
-					if (res.statusCode==200) return resolve(raw);
-					reject(raw);
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
+	deleteMessageReactions(messageId) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.deleteAllReactions, {"channel.id": this.id, "message.id": messageId});
+			
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
 				}
 			)
 		})

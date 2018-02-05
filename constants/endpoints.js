@@ -26,8 +26,9 @@ module.exports = {
 	createMessage: "/api/v6/channels/{channel.id}/messages",
 	bulkDelete: "/api/v6/channels/{channel.id}/messages/bulk-delete",
 	getChannelMessages: "/api/v6/channels/{channel.id}/messages",
-	deleteChannel: "/api/v6/channels/{channel.id}",
-	
+	updateChannel: "/api/v6/channels/{channel.id}",
+	manageReactions: "/api/v6/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}",
+	deleteAllReactions: "/api/v6/channels/{channel.id}/messages/{message.id}/reactions",
 	
 	modifyGuildMember: "/api/v6/guilds/{guild.id}/members/{user.id}",
 	modifyCurrentUsersNick: "/api/v6/guilds/{guild.id}/members/@me/nick",

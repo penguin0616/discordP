@@ -402,6 +402,9 @@ function setupGateway(session) {
 	iEvents.on('MESSAGE_REACTION_REMOVE', (d) => {
 		eEvents.emit('MESSAGE_REACTION_REMOVE', d) // could support fully sometime later
 	})
+	iEvents.on('MESSAGE_REACTION_REMOVE_ALL', (d) => {
+		eEvents.emit('MESSAGE_REACTION_REMOVE_ALL', d) // could support fully sometime later
+	})
 	iEvents.on('CHANNEL_PINS_UPDATE', (d) => {
 		eEvents.emit('CHANNEL_PINS_UPDATE', d) // will end up with message_update
 	})
