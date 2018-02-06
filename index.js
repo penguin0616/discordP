@@ -58,12 +58,19 @@ class discordp {
 		// make categories
 		this.user = undefined;
 		
-		this.guilds = [];
-		this.channels = [];
-		this.users = [];
-		this.friends = [];
-		this.blocked = [];
-		this.notes = [];
+		//this.guilds = [];
+		//this.channels = [];
+		//this.users = [];
+		//this.friends = [];
+		//this.blocked = [];
+		//this.notes = [];
+		
+		classHelper.setHiddenProperty(this, 'guilds', []);
+		classHelper.setHiddenProperty(this, 'channels', []);
+		classHelper.setHiddenProperty(this, 'users', []);
+		classHelper.setHiddenProperty(this, 'friends', []);
+		classHelper.setHiddenProperty(this, 'blocked', []);
+		classHelper.setHiddenProperty(this, 'notes', []);
 		
 		classHelper.setHiddenProperty(this, 'voiceConnections', []);
 		
@@ -86,10 +93,6 @@ class discordp {
 			setupGateway(this);
 		})
 		prom.catch((e) => {throw "Failed to login to Discord."})
-	}
-	
-	inspect() {
-		return "Discordp Client"
 	}
 }
 

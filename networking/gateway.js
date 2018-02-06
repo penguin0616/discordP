@@ -75,26 +75,30 @@ function connect(session, reconnecting) {
 		session.connected = false;
 		if (session.discord.debug) {
 			var err = code;
-			console.log("[gateway close]: Connection failed:", err);
+			console.log("[gateway close]: Connection failed:", err); // blame tusk
 		}
-		if (session.autoReconnect==true) {
+		
+		if (session.discord.autoReconnect==true) {
 			if (session.discord.debug) console.log('AutoReconnect enabled: reconnecting');
 			setTimeout(function() {
 				session.socket = session.newSocket();
 				connect(session, true);
-			}, session.reconnectDelay)
+			}, session.discord.reconnectDelay)
 		}
 	})
 	
 	session.socket.on("error", function(err) {
 		session.connected = false;
 		if (session.discord.debug) console.log("[gateway error]: Socket errored:", err);
-		if (session.autoReconnect==true) {
+		console.log('a');
+		if (session.discord.autoReconnect==true) {
+			console.log('b');
 			if (session.discord.debug) console.log('AutoReconnect enabled: reconnecting');
 			setTimeout(function() {
+				console.log('c');
 				session.socket = session.newSocket();
 				connect(session, true);
-			}, session.reconnectDelay)
+			}, session.discord.reconnectDelay)
 		}
 	})
 }
