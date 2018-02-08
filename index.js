@@ -269,7 +269,7 @@ function setupGateway(session) {
 	})
 	iEvents.on('GUILD_MEMBER_UPDATE', (d) => {
 		var user = session.users.find(u => u.id == d.user.id)
-
+		
 		var guild = session.guilds.find(g => g.id == d.guild_id);
 		var member = new iGuildMember(session, d, guild)
 		guild.members[guild.members.findIndex(m => m.id==d.id)] = member;
@@ -359,8 +359,10 @@ function setupGateway(session) {
 		
 		if (data.guild_id) {
 			var m = session.guilds.find(g => g.id == data.guild_id).members.find(m => m.id == data.user_id)
-			m.deaf = data.deaf;
-			m.mute = data.mute;
+			if (m) {
+				m.deaf = data.deaf;
+				m.mute = data.mute;
+			}
 		}
 		
 		if (data.user_id == session.user.id) {
