@@ -284,7 +284,7 @@ function setupGateway(session) {
 	iEvents.on('CHANNEL_DELETE', (d) => {
 		var channel = session.channels.find(c => c.id==d.id);
 		if (channel.guild) {
-			channel.guild.setChannel(channel, undefined);
+			channel.guild.setChannel(channel.id, undefined);
 		}
 		eEvents.emit('CHANNEL_DELETE', channel);
 	})
@@ -297,7 +297,7 @@ function setupGateway(session) {
 		else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
 		
 		if (channel.guild) {
-			channel.guild.setChannel(channel);
+			channel.guild.setChannel(channel.id, channel);
 		}
 		session.channels.push(channel);
 		
@@ -305,13 +305,20 @@ function setupGateway(session) {
 	})
 	iEvents.on('CHANNEL_UPDATE', (d) => {
 		
-		var channel = session.channels.find(c => c.id==d.id);
+		var old = session.channels.find(c => c.id==d.id);
 		
-		if (channel.guild) {
-			channel.guild.setChannel(channel, channel);
+		var channel
+		if (d.type == constants.CHANNELS.TEXT) channel = new iTextChannel(session, d);
+		else if (d.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(session, d);
+		else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(session, d);
+		
+		if (old.guild) {
+			old.guild.setChannel(channel.id, channel);
 		}
 		
-		eEvents.emit('CHANNEL_UPDATE', channel);
+		session.channels[session.channels.findIndex(c => c.id == d.id)] = channel;
+		
+		eEvents.emit('CHANNEL_UPDATE', old, channel);
 	})
 	iEvents.on('GUILD_BAN_ADD', (d) => {
 		var gm = new iGuildMember(session, d, session.guilds.find(g => g.id==d.guild_id))
@@ -322,10 +329,6 @@ function setupGateway(session) {
 		eEvents.emit('GUILD_BAN_REMOVE', gm);
 	})
 	iEvents.on('GUILD_UPDATE', (d) => {
-		// different information than a standard guild. god damnit. 
-		// do shitty merge here
-		// probably will lead to inconsistencies, but blame discord for too many variances of information at this point
-		
 		var guild = new iGuild(session, d)
 		
 		session.guilds[session.guilds.findIndex(g => g.id==d.id)] = guild;

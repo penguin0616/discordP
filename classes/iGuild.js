@@ -76,19 +76,38 @@ class iGuild extends iBase {
 				this.discord.users.push(user);
 			}
 		}
-	
+		/*
 		classHelper.setHiddenProperty(this, 'setChannel', function(channel, value) {
-			var index, array
-			if (channel.type == constants.CHANNELS.CATEGORY) array = this.channelCategories;
-			else array = this.channels;
+			var index;
+			var array = (channel.type == constants.CHANNELS.CATEGORY) ? this.channelCategories : this.channels;
 			index = array.findIndex(c => c.id==channel.id);
 			
+			console.log(channel, value);
 			
-			if (index == -1) array.push(channel); // new channel!
-			else {
-				if (value == undefined) array.splice(index, 1);
-				else array[index] = value;
+			if (index == -1) {
+				array.push(channel); // new channel!
+				console.log('new');
 			}
+			else {
+				if (value == undefined) {
+					array.splice(index, 1);
+					console.log('spliced');
+				}
+				else {
+					console.log('replaced');
+					array[index] = value;
+				}
+			}
+		})
+		*/
+		classHelper.setHiddenProperty(this, 'setChannel', function(id, channel) {
+			var array = (channel.type == constants.CHANNELS.CATEGORY) ? this.channelCategories : this.channels;
+			var index = array.findIndex(c => c.id==id);
+			
+			if (index == -1) {array.push(channel);} // new
+			else if (channel == undefined) {array.splice(index, 1);} // remove
+			else {array[index] = channel;} // replace
+			
 		})
 		
 		

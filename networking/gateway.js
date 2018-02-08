@@ -90,16 +90,6 @@ function connect(session, reconnecting) {
 	session.socket.on("error", function(err) {
 		session.connected = false;
 		if (session.discord.debug) console.log("[gateway error]: Socket errored:", err);
-		console.log('a');
-		if (session.discord.autoReconnect==true) {
-			console.log('b');
-			if (session.discord.debug) console.log('AutoReconnect enabled: reconnecting');
-			setTimeout(function() {
-				console.log('c');
-				session.socket = session.newSocket();
-				connect(session, true);
-			}, session.discord.reconnectDelay)
-		}
 	})
 }
 
