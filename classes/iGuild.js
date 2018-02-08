@@ -77,8 +77,8 @@ class iGuild extends iBase {
 			}
 		}
 		classHelper.setHiddenProperty(this, 'setChannel', function(id, channel) {
-			var array = (channel.type == constants.CHANNELS.CATEGORY) ? this.channelCategories : this.channels;
-			var index = array.findIndex(c => c.id==id);
+			var array = (id.type == constants.CHANNELS.CATEGORY) ? this.channelCategories : this.channels;
+			var index = array.findIndex(c => c.id==id.id);
 			
 			if (index == -1) {array.push(channel);} // new
 			else if (channel == undefined) {array.splice(index, 1);} // remove

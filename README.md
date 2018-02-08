@@ -8,3 +8,17 @@ If you have suggestions, go ahead and post them!
 I used the Discord documentation and Fiddler to write the api stuff.
 
 ## API
+### iUser
+```js
+Discord properties:
+
+
+
+Properties:
+
+
+
+Methods:
+	Promise<Object, Object> getApplication()
+	// returns application info
+```

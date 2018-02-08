@@ -279,7 +279,7 @@ function setupGateway(session) {
 	iEvents.on('CHANNEL_DELETE', (d) => {
 		var channel = session.channels.find(c => c.id==d.id);
 		if (channel.guild) {
-			channel.guild.setChannel(channel.id, undefined);
+			channel.guild.setChannel(channel, undefined);
 		}
 		eEvents.emit('CHANNEL_DELETE', channel);
 	})
@@ -292,7 +292,7 @@ function setupGateway(session) {
 		else throw "oh no, a unknown type of channel was created! send penguin pic of this data: " + JSON.stringify(d);
 		
 		if (channel.guild) {
-			channel.guild.setChannel(channel.id, channel);
+			channel.guild.setChannel(channel, channel);
 		}
 		session.channels.push(channel);
 		
@@ -308,7 +308,7 @@ function setupGateway(session) {
 		else if (d.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(session, d);
 		
 		if (old.guild) {
-			old.guild.setChannel(channel.id, channel);
+			old.guild.setChannel(channel, channel);
 		}
 		
 		session.channels[session.channels.findIndex(c => c.id == d.id)] = channel;
