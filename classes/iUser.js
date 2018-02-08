@@ -35,7 +35,7 @@ class iUser extends iBase {
 	getApplication() {
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
-			var url = classHelper.formatURL(discord.endpoints.oauth2Application, {"id": "297923705617514496"})
+			var url = classHelper.formatURL(discord.endpoints.oauth2Application, {"id": this.id})
 			discord.http.get(
 				url,
 				function(error, response, rawData) {
