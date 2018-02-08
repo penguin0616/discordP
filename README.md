@@ -6,3 +6,5 @@ I also like being able to know how the backend works, and I prefer using my own 
 If you have suggestions, go ahead and post them!
 
 I used the Discord documentation and Fiddler to write the api stuff.
+
+## API
