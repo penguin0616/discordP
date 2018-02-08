@@ -76,30 +76,6 @@ class iGuild extends iBase {
 				this.discord.users.push(user);
 			}
 		}
-		/*
-		classHelper.setHiddenProperty(this, 'setChannel', function(channel, value) {
-			var index;
-			var array = (channel.type == constants.CHANNELS.CATEGORY) ? this.channelCategories : this.channels;
-			index = array.findIndex(c => c.id==channel.id);
-			
-			console.log(channel, value);
-			
-			if (index == -1) {
-				array.push(channel); // new channel!
-				console.log('new');
-			}
-			else {
-				if (value == undefined) {
-					array.splice(index, 1);
-					console.log('spliced');
-				}
-				else {
-					console.log('replaced');
-					array[index] = value;
-				}
-			}
-		})
-		*/
 		classHelper.setHiddenProperty(this, 'setChannel', function(id, channel) {
 			var array = (channel.type == constants.CHANNELS.CATEGORY) ? this.channelCategories : this.channels;
 			var index = array.findIndex(c => c.id==id);
@@ -109,8 +85,13 @@ class iGuild extends iBase {
 			else {array[index] = channel;} // replace
 			
 		})
-		
-		
+	}
+	
+	// get
+	
+	get acronym() {
+		if (!this.name) return "";
+		return this.name.replace(/\w+/g, (word) => word[0]).replace(/\s/g, "");
 	}
 	
 	get textChannels() {
@@ -132,6 +113,8 @@ class iGuild extends iBase {
 	}
 	
 	get owner() { return this.members.find(m => m.id==this.owner_id) }
+	
+	// methods
 	
 	getBans() {
 		var discord = this.discord;
@@ -322,46 +305,6 @@ class iGuild extends iBase {
 		})
 	}
 	
-	/*
-	createInvite(max_age, max_uses, temporary_membership) {
-		// {"max_age":0,"max_uses":1,"temporary":true}
-		// {"max_age":1800,"max_uses":0,"temporary":false}
-		
-		var discord = this.discord;
-		return new Promise((resolve, reject) => {
-			if (typeof(max_age)!='number') return reject('max_age argument expected a number');
-			if (typeof(max_uses)!='number') return reject('max_uses argument expected a number');
-			if (typeof(temporary_membership) != 'boolean') return reject('temporary_membership expected a boolean');
-			
-			var url = classHelper.formatURL(discord.endpoints.invites, {"guild.id": this.id})
-			discord.http.post(
-				url,
-				JSON.stringify({
-					"max_age": max_age,
-					"max_uses": max_uses,
-					"temporary_membership": temporary_membership
-				}),
-				function(error, response, rawData) {
-					if (error) return reject(error);
-					if (response.statusCode==200) {
-						var invites = JSON.parse(rawData);
-						invites.forEach((invite) => {
-							invite.guild = discord.guilds.find(g => g.id == invite.guild.id);
-							if (invite.inviter) {
-								invite.inviter = new iUser(discord, invite.inviter);
-							}
-							invite.channel = discord.channels.find(c => c.id == invite.channel.id);
-						})
-						resolve(invites);
-						return
-					}
-					reject(rawData);
-				}
-			)
-		}) 
-	}
-	*/
-	
 	getAuditLogs(user_id, action_type, before, limit) {
 		// action_type: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
 		// if you're reading this, you can specify action_type with the discord client object's constants object. ie client.constants.AUDIT_LOG_EVENTS.GUILD_UPDATE
@@ -414,7 +357,45 @@ class iGuild extends iBase {
 				}
 			)
 		}) 
-		
+	}
+	
+	modifyGuildMember(id, patch) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = (discord.user.id == id && patch.nick != undefined) ? discord.endpoints.modifyCurrentUsersNick : discord.endpoints.modifyGuildMember;
+			url = classHelper.formatURL(url, {"guild.id": this.id, "user.id": id})
+			
+			discord.http.patch(
+				url,
+				JSON.stringify(patch),
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204 || response.statusCode==200) return resolve(rawData);
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
+	setMemberNickname(id, nick) {
+		if (nick == undefined) nick = "";
+		return this.modifyGuildMember(id, {nick: nick})
+	}
+	serverMuteMember(id) {
+		return this.modifyGuildMember(id, {mute: true})
+	}
+	serverUnmuteMember(id) {
+		return this.modifyGuildMember(id, {mute: false})
+	}
+	serverDeafenMember(id) {
+		return this.modifyGuildMember(id, {deaf: true})
+	}
+	serverUndeafenMember(id) {
+		return this.modifyGuildMember(id, {deaf: false})
+	}
+	moveMemberToVoiceChannel(id, channel) {
+		var channelId = (classHelper.getClass(channel)=='iVoiceChannel') ? channel.id : channel;
+		return this.modifyGuildMember(id, {channel_id: channelId})
 	}
 	
 	

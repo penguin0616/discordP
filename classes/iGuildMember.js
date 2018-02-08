@@ -44,25 +44,22 @@ class iGuildMember extends iUser {
 	}
 	
 	setNickname(nick) {
-		var discord = this.discord;
-		return new Promise((resolve, reject) => {
-			var url = discord.endpoints.modifyGuildMember;
-			if (discord.user.id == this.id) url = discord.endpoints.modifyCurrentUsersNick
-			
-			url = classHelper.formatURL(url, {"guild.id": this.guild_id, "user.id": this.id})
-			
-			discord.http.patch(
-				url,
-				JSON.stringify({
-					nick: nick
-				}),
-				function(error, response, rawData) {
-					if (error) return reject(error);
-					if (response.statusCode==204 || response.statusCode==200) return resolve();
-					reject('Unable to set nickname:' + rawData);
-				}
-			)
-		})
+		return this.guild.setMemberNickname(this.id, nick);
+	}
+	serverMute() {
+		return this.guild.serverMuteMember(this.id);
+	}
+	serverUnmute() {
+		return this.guild.serverUnmuteMember(this.id);
+	}
+	serverDeafen() {
+		return this.guild.serverDeafenMember(this.id);
+	}
+	serverUndeafen() {
+		return this.guild.serverUndeafenMember(this.id);
+	}
+	moveToVoiceChannel(channel) {
+		return this.guild.moveMemberToVoiceChannel(this.id, channel);
 	}
 	
 	kick(reason) {

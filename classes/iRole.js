@@ -48,7 +48,6 @@ class iRole extends iBase {
 				}
 			}
 			
-			console.log(patch);
 			discord.http.patch(
 				url,
 				JSON.stringify(patch),
