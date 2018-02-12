@@ -3,21 +3,18 @@ const iBase = require("./iBase.js");
 
 
 class iChannel extends iBase {
-	constructor(discord, data, guild) {
+	constructor(discord, data, guild_id) {
 		super(discord, data);
 		for (var index in data) {
 			var value = data[index]
 			this[index] = value
 		}
 		
-		if (guild != undefined) {
-			this.guild_id = guild.id;
-		}
+		this.guild_id = guild_id;
 	}
 	
 	get guild() {
-		if (this.guild_id == undefined) return undefined;
-		return this.discord.guilds.find(g => g.id == this.guild_id)
+		return this.discord.guilds[this.guild_id]
 	}
 	
 	get isDMChannel() {

@@ -77,7 +77,7 @@ class baseSocket {
 					},
 					"compress": true,
 					"large_threshold": 250,
-					"shard": [this.discord.shardId-1, this.discord.shardCount]
+					"shard": [this.shard, this.discord.shardCount]
 				}
 			}
 		} else if (this.type == 'voice') {
@@ -90,7 +90,10 @@ class baseSocket {
 					"token": this.connection.token//this.discord.internal.token
 				}
 			}
-		} else throw 'attempt to identify a baseSocket';
+		} else {
+			console.log("fat", this);
+			throw 'attempt to identify a baseSocket';
+		}
 		
 		this.send(identify);
 		console.log(`Sent a ${this.type} Identify`);
@@ -121,11 +124,12 @@ class baseSocket {
 		this.send(resume);
 		console.log(`Sent a ${this.type} Resume`);
 	}
-	
+	/*
 	inspect() {
 		if (this.type == undefined) return 'baseSocket';
-		return "Gateway: " + this.type
+		return "Socket: " + this.type
 	}
+	*/
 }
 
 module.exports = baseSocket;

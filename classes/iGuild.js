@@ -57,9 +57,9 @@ class iGuild extends iBase {
 		this.channelCategories = [];
 		for (var i in data.channels) {
 			var v = data.channels[i];
-			if (v.type == constants.CHANNELS.TEXT) this.channels.push(new iTextChannel(this.discord, v, this))
-			else if (v.type == constants.CHANNELS.VOICE) this.channels.push(new iVoiceChannel(this.discord, v, this))
-			else if (v.type == constants.CHANNELS.CATEGORY) this.channelCategories.push(new iChannelCategory(this.discord, v, this))
+			if (v.type == constants.CHANNELS.TEXT) this.channels.push(new iTextChannel(this.discord, v, this.id))
+			else if (v.type == constants.CHANNELS.VOICE) this.channels.push(new iVoiceChannel(this.discord, v, this.id))
+			else if (v.type == constants.CHANNELS.CATEGORY) this.channelCategories.push(new iChannelCategory(this.discord, v, this.id))
 			else throw "OH NOOOOOOOOOOOOOOOOOO, UNKNOWN CHANNEL TYPE"
 		}
 	
@@ -68,12 +68,12 @@ class iGuild extends iBase {
 		for (var i in data.members) {
 			var v = data.members[i];
 			var duser = v.user;
-			var member = new iGuildMember(this.discord, v, this);
+			var member = new iGuildMember(this.discord, v, this.id);
 			this.members.push(member);
 			var user = this.discord.users.find(j => j.id == member.id);
 			if (!user) {
 				user = new iUser(discord, duser)
-				this.discord.users.push(user);
+				this.discord.users[user.id] = user;
 			}
 		}
 		classHelper.setHiddenProperty(this, 'setChannel', function(id, channel) {
@@ -154,7 +154,7 @@ class iGuild extends iBase {
 								// not sure whether i should make it guild members or not; will go for not atm
 								invite.inviter = new iUser(discord, invite.inviter); //invite.guild.members.find((m) => m.id==invite.inviter.id)
 							}
-							invite.channel = discord.channels.find(c => c.id == invite.channel.id);
+							invite.channel = discord.channels[invite.channel.id];
 						})
 						resolve(invites);
 						return

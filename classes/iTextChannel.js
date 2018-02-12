@@ -22,7 +22,7 @@ class iTextChannel extends iChannel {
 		
 		super(discord, data, guild);
 		var lib = this.discord;
-		if (lib.channels.find(c => c.id==this.id)==undefined) lib.channels.push(this);
+		if (lib.channels[this.id]==undefined) lib.channels[this.id] = this;
 	}
 	
 	sendMessage(content, tts, embed) {
@@ -243,7 +243,7 @@ class iTextChannel extends iChannel {
 						var invite = JSON.parse(rawData);
 						invite.guild = discord.guilds.find(g => g.id == invite.guild.id);
 						if (invite.inviter) {invite.inviter = new iUser(discord, invite.inviter);}
-						invite.channel = discord.channels.find(c => c.id == invite.channel.id);
+						invite.channel = discord.channels[invite.channel.id];
 						console.log(invite);
 						resolve(invite);
 						return

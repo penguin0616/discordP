@@ -15,7 +15,7 @@ class iVoiceChannel extends iChannel {
 		
 		super(discord, data, guild);
 		var lib = this.discord;
-		if (lib.channels.find(c => c.id==this.id)==undefined) lib.channels.push(this);
+		if (lib.channels[this.id]==undefined) lib.channels[this.id] = this;
 	}
 	
 	join(self_mute, self_deaf) {
@@ -34,21 +34,14 @@ class iVoiceChannel extends iChannel {
 				}
 			}
 			var yay = discord.gateway.send(data)
+			/*
 			if (yay==true) {
 				var con = new iVoiceConnection(discord, self);
 				console.log('A')
 				resolve(con);
-				/*
-				var index = discord.voiceConnections.findIndex(v => v.guild_id == self.guild_id);
-				if (index != -1) discord.voiceConnections.splice(index, 1);
-
-				var con = new iVoiceConnection(discord, self);
-				discord.voiceConnections.push(con);
-				
-				resolve(con);
-				*/
 				return;
 			}
+			*/
 			reject();
 		})
 	}
@@ -67,7 +60,7 @@ class iVoiceChannel extends iChannel {
 				}
 			}
 			var yay = discord.gateway.send(data)
-			if (yay==true) return resolve();
+			//if (yay==true) return resolve();
 			reject();
 		})
 	}

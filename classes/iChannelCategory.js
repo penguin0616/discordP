@@ -8,7 +8,7 @@ class iChannelCategory extends iChannel {
 		super(discord, data, guild);
 		
 		var lib = this.discord;
-		if (lib.channels.find(c => c.id==this.id)==undefined) lib.channels.push(this);
+		if (lib.channels[this.id]==undefined) lib.channels[this.id] = this;
 	}
 }
 

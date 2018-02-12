@@ -23,24 +23,30 @@ const iUser = require('./iUser.js');
 */
 
 class iGuildMember extends iUser {
-	constructor(discord, data, guild) {
+	constructor(discord, data, guild_id) {
+		var roles = data.roles;
+		delete data.roles;
 		super(discord, data);
-		if (guild == undefined) throw "attempt to construct iGuildMember with no reference to guild"
 		
-		this.roles = [];
-		for (var i in data.roles) {
-			var id = data.roles[i];
-			var role = guild.roles.find(r => r.id==id);
-			this.roles.push(role);
+		this.raw_roles = roles;
+		
+		if (guild_id == undefined) {
+			console.log(data);
+			throw "attempt to construct iGuildMember with no reference to guild"
 		}
 		
+		
 		this.nick = (this.nick != undefined && this.nick) || null
-		if (this.guild_id==undefined) this.guild_id = guild.id;
+		if (this.guild_id==undefined) this.guild_id = guild_id;
 		
 	}
 	
+	get roles() {
+		return this.discord.guilds[this.guild_id];
+	}
+	
 	get guild() {
-		return this.discord.guilds.find(g => g.id == this.guild_id)
+		return this.discord.guilds[this.guild_id];
 	}
 	
 	setNickname(nick) {

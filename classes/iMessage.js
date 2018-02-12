@@ -51,7 +51,7 @@ class iMessage extends iBase {
 	}
 	
 	get channel() {
-		return this.discord.channels.find(c => c.id == this.channel_id);
+		return this.discord.channels[this.channel_id];
 	}
 	
 	get isDM() {
@@ -60,7 +60,8 @@ class iMessage extends iBase {
 	}
 	
 	get guild() {
-		if (this.channel && this.channel.guild_id) return this.discord.guilds.find(g => g.id == this.channel.guild_id);
+		 var g = this.discord.guilds[this.channel.guild_id];
+		 return g;
 	}
 	
 	get selfOwned() {return this.author.id == this.discord.user.id}

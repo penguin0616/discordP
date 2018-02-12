@@ -23,12 +23,13 @@ Code	Name					Client Action		Description
 */
 
 class gateway extends baseSocket {
-	constructor(discord, server) {
-		server = endpoints.gateway;
+	constructor(discord, shard) {
+		var server = endpoints.gateway;
 		super(discord, server);
 		this.type = 'gateway';
+		this.shard = shard;
 		
-		this.socket = this.newSocket();
+		classHelper.setHiddenProperty(this, 'socket', this.newSocket())
 		
 		connect(this);
 	}
@@ -46,50 +47,111 @@ function connect(session, reconnecting) {
 		var data = JSON.parse(rawData);
 		if (data.s != null) session.seq = data.s;
 		
-		// handle
 		if (data.op == ops.HELLO) {
-			if (reconnecting==true) session.resume();
-			else session.identify();
+			//console.log(`[Gateway[${session.shard}]]: Hello.`);
+			session.identify();
+			
 			session.heartbeat_interval = data.d.heartbeat_interval
 		} else if (data.op == ops.HEARTBEAT_ACK) {
 			// yay
+			
+			
+			
 		} else if (data.op == ops.INVALID_SESSION) {
+			/*
 			if (data.d == false) {
-				setTimeout(session.identify, 3);
-				if (session.discord.debug) console.log("[gateway]: INVALID_SESSION received, and we are unable to resume. Identifying soon.");
+				setTimeout(function() {session.identify()}, 3);
+				if (session.discord.debug) console.log(`[gateway[${session.shard}]]: INVALID_SESSION received, and we are unable to resume. Identifying soon.`);
 				return;
 			}
-			setTimeout(session.resume, 3);
-			if (session.discord.debug) console.log("[gateway]: INVALID_SESSION received, but we are able to resume. Resuming soon.");
+			setTimeout(function() {session.resume()}, 3);
+			if (session.discord.debug) console.log(`[gateway[${session.shard}]]: INVALID_SESSION received, but we are able to resume. Resuming soon.`);
+			*/
+			console.log(`[Gateway[${session.shard}]]: Invalid session.`);
+			
+			
+			
+		} else if (data.op == ops.HEARTBEAT) {
+			session.ping();
+			
+			
+			
+		} else if (data.op == ops.DISPATCH) {
+			// here we go
+			session.discord.internal.events.emit(data.t, session, data.d);
+			session.discord.internal.events.emit('ANY', session, data.t, data.d);
+			
+			
+			
+		} else {
+			console.log(`[Gateway[${session.shard}]]: unrecognized op:`, data);
+		}
+		
+		/*
+		// handle
+		if (data.op == ops.HELLO) {
+			if (reconnecting==true)
+				session.resume();
+			else
+				session.identify();
+			
+			session.heartbeat_interval = data.d.heartbeat_interval
+			
+		} else if (data.op == ops.HEARTBEAT_ACK) {
+			// yay
+			
+			
+			
+		} else if (data.op == ops.INVALID_SESSION) {
+			if (data.d == false) {
+				setTimeout(function() {session.identify()}, 3);
+				if (session.discord.debug) console.log(`[gateway[${session.shard}]]: INVALID_SESSION received, and we are unable to resume. Identifying soon.`);
+				return;
+			}
+			setTimeout(function() {session.resume()}, 3);
+			if (session.discord.debug) console.log(`[gateway[${session.shard}]]: INVALID_SESSION received, but we are able to resume. Resuming soon.`);
+			
+			
+			
 		} else if (data.op == ops.HEARTBEAT) {
 			// my heart is beating
 			session.ping();
+			
+			
+			
 		} else if (data.op == ops.DISPATCH) {
 			// here we go
-			session.discord.internal.events.emit('ANY', data.t, data.d);
-			session.discord.internal.events.emit(data.t, data.d);
-		} else console.log("[gateway]: unrecognized op:", data);
+			session.discord.internal.events.emit('ANY', session, data.t, data.d);
+			session.discord.internal.events.emit(session, data.t, data.d);
+			
+			
+			
+		} else {
+			console.log(`[gateway[${session.shard}]]: unrecognized op:`, data);
+		}
+		*/
 	})
 	
 	session.socket.on("close", function(code) {
 		session.connected = false;
-		if (session.discord.debug) {
-			var err = code;
-			console.log("[gateway close]: Connection failed:", err); // blame tusk
-		}
+		if (session.discord.debug) console.log("[gateway close]: Connection failed:", code);
+		
+
+		/*
 		
 		if (session.discord.autoReconnect==true) {
 			if (session.discord.debug) console.log('AutoReconnect enabled: reconnecting');
 			setTimeout(function() {
-				session.socket = session.newSocket();
+				classHelper.setHiddenProperty(session, 'socket', session.newSocket())
 				connect(session, true);
 			}, session.discord.reconnectDelay)
 		}
+		*/
 	})
 	
 	session.socket.on("error", function(err) {
 		session.connected = false;
-		if (session.discord.debug) console.log("[gateway error]: Socket errored:", err);
+		if (session.discord.debug) console.log("[gateway error]: Socket errored");
 	})
 }
 

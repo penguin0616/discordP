@@ -18,7 +18,7 @@ class iRole extends iBase {
 	}
 	
 	get guild() {
-		return (this.discord.guilds.find(g => g.id==this.guild_id));
+		return (this.discord.guilds[this.guild_id]);
 	}
 	
 	setPosition(position) {
