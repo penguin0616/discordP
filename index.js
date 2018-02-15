@@ -358,8 +358,12 @@ function setupGateway(session) {
 	iEvents.on('GUILD_MEMBER_UPDATE', (socket, data) => {
 		var user = session.users[data.user.id];
 		var guild = session.guilds[data.guild_id];
+		
 		var member = new iGuildMember(session, data, data.guild_id);
-		guild.members[guild.members.findIndex(m => m.id==data.id)] = member;
+		
+		guild.members[guild.members.findIndex(m => m.id==data.user.id)] = member;
+		
+		
 		eEvents.emit('GUILD_MEMBER_UPDATE', member);
 	})
 	iEvents.on('GUILD_MEMBER_REMOVE', (socket, data) => {

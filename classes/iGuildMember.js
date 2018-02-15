@@ -42,7 +42,11 @@ class iGuildMember extends iUser {
 	}
 	
 	get roles() {
-		return this.discord.guilds[this.guild_id];
+		var roles = [];
+		this.discord.guilds[this.guild_id].roles.forEach((role) => {
+			if (this.raw_roles.find(id => id == role.id)) roles.push(role)
+		})
+		return roles;
 	}
 	
 	get guild() {
