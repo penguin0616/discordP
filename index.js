@@ -226,7 +226,7 @@ function setupGateway(session) {
 		internal.messages[msg.id].original = msg;
 		internal.messages[msg.id].current = msg;
 		
-		eEvents.emit('MESSAGE_CREATE', msg);
+		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_CREATE', msg);
 	})
 	iEvents.on('MESSAGE_UPDATE', (socket, m) => {
 		if (m.author==undefined) return; // embed
@@ -247,7 +247,7 @@ function setupGateway(session) {
 			last = msg;
 		}
 		if (last.pinned != last2.pinned) return; // just a pin
-		eEvents.emit('MESSAGE_EDIT', last, last2); // new, old
+		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_EDIT', last, last2); // new, old
 		info.current = msg;
 	})
 	iEvents.on('MESSAGE_DELETE', (socket, d) => {
@@ -256,7 +256,8 @@ function setupGateway(session) {
 		var msg = info.edits[info.edits.length-1]
 		if (msg == undefined) msg = info.original;
 		msg.deleted = true;
-		eEvents.emit('MESSAGE_DELETE', msg);
+		
+		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_DELETE', msg);
 	})
 	iEvents.on('MESSAGE_DELETE_BULK', (socket, d) => {
 		var msgs = [];
