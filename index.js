@@ -305,7 +305,8 @@ function setupGateway(session) {
 		if (data.type == constants.CHANNELS.TEXT) channel = new iTextChannel(session, data, data.guild_id);
 		else if (data.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(session, data, data.guild_id);
 		else if (data.type == constants.CHANNELS.CATEGORY) channel = new iChannelCategory(session, data, data.guild_id);
-		else throw 'ah crap';
+		else if (data.type == constants.CHANNELS.DM || data.type == constants.CHANNELS.GROUP_DM) channel = new iDMChannel(session, data); 
+		throw 'ah crap';
 		
 		if (old.guild) {
 			old.guild.setChannel(channel, channel);
