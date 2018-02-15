@@ -15,6 +15,10 @@ class iUser extends iBase {
 		
 		if (this.bot == undefined) this.bot = false;
 	}
+	
+	get avatarURL() {
+		return classHelper.formatURL(this.discord.endpoints.avatarURL, {"user.id": this.id, "avatar": this.avatar, "format": "webp", "size": 128})
+	}
 
 	get fullName() { return `${this.username}#${this.discriminator}` }
 	
@@ -30,6 +34,10 @@ class iUser extends iBase {
 	
 	get note() {
 		return this.discord.notes.find(n => n.id==this.id);
+	}
+	
+	avatarURLF(format="webp", size=128) {
+		return classHelper.formatURL(this.discord.endpoints.avatarURL, {"user.id": this.id, "avatar": this.avatar, "format": format, "size": size})
 	}
 	
 	getApplication() {

@@ -1,10 +1,20 @@
 const classHelper = require('./classHelper.js');
 const iBase = require("./iBase.js");
+const iPermissions = require("./iPermissions.js");
 
 
 class iChannel extends iBase {
 	constructor(discord, data, guild_id) {
 		super(discord, data);
+		
+		var permo = data.permission_overwrites;
+		if (permo) {
+			permo.forEach((perm) => {
+				perm.deny = new iPermissions(discord, perm.deny, this.constructor.name)
+				perm.allow = new iPermissions(discord, perm.allow, this.constructor.name)
+			})
+		}
+		
 		for (var index in data) {
 			var value = data[index]
 			this[index] = value

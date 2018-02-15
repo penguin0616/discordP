@@ -5,15 +5,8 @@ const iPermissions = require("./iPermissions.js");
 const iVoiceConnection = require("./iVoiceConnection.js");
 
 class iVoiceChannel extends iChannel {
-	constructor(discord, data, guild) {
-		for (var i in data.permission_overwrites) {
-			var v = data.permission_overwrites[i];
-			
-			v.deny = new iPermissions(discord, v.deny, data.type);
-			v.allow = new iPermissions(discord, v.allow, data.type);
-		}
-		
-		super(discord, data, guild);
+	constructor(discord, data, guild_id) {
+		super(discord, data, guild_id);
 		var lib = this.discord;
 		if (lib.channels[this.id]==undefined) lib.channels[this.id] = this;
 	}

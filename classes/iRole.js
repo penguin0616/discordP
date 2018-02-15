@@ -6,8 +6,8 @@ class iRole extends iBase {
 	constructor(discord, data, guild_id) {
 		super(discord, data);
 		
-		data.permissions = new iPermissions(data.permissions)
-		
+		this.permissions = new iPermissions(discord, data.permissions, 'iRole');
+		delete data.permissions
 		
 		for (var index in data) {
 			var value = data[index]

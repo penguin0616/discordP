@@ -315,7 +315,6 @@ function setupGateway(session) {
 		eEvents.emit('CHANNEL_UPDATE', old, channel);
 	})
 	iEvents.on('CHANNEL_DELETE', (socket, data) => {
-		console.log(data);
 		var channel = session.channels[data.id];
 		if (channel.guild) {
 			channel.guild.setChannel(channel, undefined);
@@ -376,7 +375,7 @@ function setupGateway(session) {
 	
 	iEvents.on('GUILD_ROLE_CREATE', (socket, data) => {
 		var role = new iRole(session, data.role, data.guild_id);
-		var guild = ssession.guilds[data.guild_id];
+		var guild = session.guilds[data.guild_id];
 		guild.roles.push(role);
 	})
 	
@@ -512,8 +511,8 @@ function setupGateway(session) {
 	
 	iEvents.on('ANY', (socket, name, d) => {
 		if (iEvents.listenerCount(name)==0) { // i'm not listening to the event, so just chuck it out (after some formatting?).
-			//if (session.debug) console.log('caught ANY', name, d); // will probably add support later for whatever this is
-			//eEvents.emit(name, d);
+			if (session.debug) console.log('caught ANY', name, d); // will probably add support later for whatever this is
+			eEvents.emit(name, d);
 		}
 	})
 	

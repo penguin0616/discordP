@@ -9,18 +9,9 @@ const iUser = require("./iUser.js");
 
 
 class iTextChannel extends iChannel {
-	constructor(discord, data, guild) {
+	constructor(discord, data, guild_id) {
+		super(discord, data, guild_id);
 		
-		if (data.permission_overwrites) {
-			for (var i in data.permission_overwrites) {
-				var v = data.permission_overwrites[i];
-				
-				v.deny = new iPermissions(v.deny, data.type);
-				v.allow = new iPermissions(v.allow, data.type);
-			}
-		}
-		
-		super(discord, data, guild);
 		var lib = this.discord;
 		if (lib.channels[this.id]==undefined) lib.channels[this.id] = this;
 	}
