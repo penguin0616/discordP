@@ -1,7 +1,7 @@
 const classHelper = require('./classHelper.js');
 const iBase = require("./iBase.js");
 const iUser = require("./iUser.js");
-
+const iEmoji = require("./iEmoji.js");
 /*
 {
     "reactions": [
@@ -43,6 +43,12 @@ class iMessage extends iBase {
 		delete data.author;
 		
 		if (data.deleted==undefined) data.deleted=false;
+		
+		if (data.reactions) {
+			data.reactions.forEach(rawr => {
+				rawr.emoji = new iEmoji(discord, rawr.emoji);
+			})
+		}
 		
 		for (var index in data) {
 			var value = data[index]

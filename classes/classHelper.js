@@ -1,3 +1,6 @@
+const fs = require("fs");
+var emojis = require("../constants/emojis.js").emojis;
+
 module.exports.constants = function() {
 	return require("../constants/constants.js");
 }
@@ -78,7 +81,38 @@ module.exports.convertImage = function(image) {
 	return image;
 }
 
+function toBytes(str) {
+	var b = "";
+	for (var i = 0; i < str.length; i++) {
+		var byte = str.charCodeAt(i);
+		
+		b = b + "\\" + str.charCodeAt(i);
+	}
+	return b
+}
 
+module.exports.translateEmoji = function(name) {
+	console.log(name, toBytes(name))
+	var helper = function(str) {
+		var b = "";
+		for (var i = 0; i < str.length; i++) {
+			var byte = str.charCodeAt(i);
+			if (byte != "65039")
+				b = b + "\\" + str.charCodeAt(i);
+		}
+		return b
+}
+	for (var n in emojis) {
+		var d = emojis[n];
+		//console.log(name);
+		//console.log(d.char);
+		//console.log('--');
+		//if (match) return match;
+	}
+	
+	
+	return "_ERROR_";
+}
 
 
 
