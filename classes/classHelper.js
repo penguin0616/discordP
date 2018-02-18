@@ -92,22 +92,11 @@ function toBytes(str) {
 }
 
 module.exports.translateEmoji = function(name) {
-	console.log(name, toBytes(name))
-	var helper = function(str) {
-		var b = "";
-		for (var i = 0; i < str.length; i++) {
-			var byte = str.charCodeAt(i);
-			if (byte != "65039")
-				b = b + "\\" + str.charCodeAt(i);
-		}
-		return b
-}
+	var name2 = name.substring(0, 1) + String.fromCharCode(65039) + name.substring(1)
+	
 	for (var n in emojis) {
 		var d = emojis[n];
-		//console.log(name);
-		//console.log(d.char);
-		//console.log('--');
-		//if (match) return match;
+		if (d.char == name2 || d.char == name) return n
 	}
 	
 	

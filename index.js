@@ -44,14 +44,8 @@ class discordp {
 		if (data.debug==true) {this.debug=true; console.log("Running a Discordp session in debug mode!");}
 		
 		// gateway
-		/*
-		if (data.shardId) {
-			this.shardId = data.shardId;
-			if (data.shardCount==undefined) throw "Attempt to assign shardId with no 'shardCount'."
-			this.shardCount = data.shardCount;
-		} else {this.shardId = 1; this.shardCount = 1;}
-		*/
 		this.shardCount = (data.shardCount != undefined) ? data.shardCount : 1
+		//this.waitForAllShards = (data.waitForAllShards != undefined) ? data.waitForAllShards : true
 		
 		if (data.autoReconnect==true) {
 			this.autoReconnect=true;
@@ -102,17 +96,17 @@ class discordp {
 
 function setupGateway(session) {
 	classHelper.setHiddenProperty(session, 'gateway', new gateway(session, 0));
-	for (var i = 1; i < session.shardCount; i++) {
-		var ret = i;
+	for (let i = 1; i < session.shardCount; i++) {
 		setTimeout(function() {
-			classHelper.setHiddenProperty(session, 'gateway', new gateway(session, ret));
-		}, ret*6000)
+			classHelper.setHiddenProperty(session, 'gateway', new gateway(session, i));
+		}, i*6000)
 	}
 	
 	var internal = session.internal;
 	var iEvents = internal.events;
 	var eEvents = session.events;
 	
+
 	// Main
 	
 	iEvents.on('READY', (socket, e) => {
@@ -318,7 +312,8 @@ function setupGateway(session) {
 	})
 	iEvents.on('CHANNEL_DELETE', (socket, data) => {
 		var channel = session.channels[data.id];
-		if (channel.guild) {
+		if (channel == undefined) { console.log(socket.shard, data); return; }
+		if (channel.guild) { // oh no
 			channel.guild.setChannel(channel, undefined);
 		}
 		delete session.channels[data.id];

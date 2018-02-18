@@ -9012,6 +9012,7 @@
     "category": "flags"
   }
 }
+
 var fitzpatrick_scale_modifiers = ["🏻", "🏼", "🏽", "🏾", "🏿"]
 
 module.exports = {
