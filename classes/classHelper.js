@@ -100,7 +100,7 @@ module.exports.translateEmoji = function(name) {
 	}
 	
 	
-	return "_ERROR_";
+	return undefined;
 }
 
 
