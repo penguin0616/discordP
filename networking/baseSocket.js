@@ -96,7 +96,7 @@ class baseSocket {
 		}
 		
 		this.send(identify);
-		console.log(`Sent a ${this.type} Identify`);
+		if (this.discord.debug) {console.log(`Sent a ${this.type} Identify`);}
 	}
 	
 	resume() {
