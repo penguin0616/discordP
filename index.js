@@ -316,7 +316,7 @@ function setupGateway(session) {
 	iEvents.on('CHANNEL_DELETE', (socket, data) => {
 		var channel = session.channels[data.id];
 		if (channel == undefined) {
-			console.log("deleted deleted channel ohno", socket.shard, data);
+			if (session.debug) console.log("deleted deleted channel ohno", socket.shard, data);
 			return;
 		}
 		if (channel.guild) { // oh no
