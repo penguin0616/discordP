@@ -205,6 +205,9 @@ function setupGateway(session) {
 		}
 		delete e.notes;
 		
+		// user_feed_settings
+		delete e.user_feed_settings;
+		
 		if (JSON.stringify(e) != "{}" && session.debug) console.log(`Gateway[${socket.shard}] ready not completely parsed:`, e);
 		
 		eEvents.emit('GATEWAY_READY');
@@ -312,7 +315,10 @@ function setupGateway(session) {
 	})
 	iEvents.on('CHANNEL_DELETE', (socket, data) => {
 		var channel = session.channels[data.id];
-		if (channel == undefined) { console.log(socket.shard, data); return; }
+		if (channel == undefined) {
+			console.log("deleted deleted channel ohno", socket.shard, data);
+			return;
+		}
 		if (channel.guild) { // oh no
 			channel.guild.setChannel(channel, undefined);
 		}
