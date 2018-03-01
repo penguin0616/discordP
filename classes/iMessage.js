@@ -77,18 +77,7 @@ class iMessage extends iBase {
 	}
 	
 	delete() {
-		var discord = this.discord;
-		return new Promise((resolve, reject) => {
-			var url = classHelper.formatURL(discord.endpoints.manageMessage, {"channel.id": this.channel_id, "message.id": this.id})
-			discord.http.delete(
-				url, 
-				function(error, response, rawData) {
-					if (error) return reject(error);
-					if (response.statusCode==204) return resolve();
-					reject(rawData);
-				}
-			)
-		})
+		return this.channel.deleteMessage(this.id);
 	}
 	
 	pin() {

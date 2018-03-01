@@ -245,6 +245,21 @@ class iTextChannel extends iChannel {
 		}) 
 	}
 	
+	deleteMessage(messageId) {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.manageMessage, {"channel.id": this.id, "message.id": messageId})
+			discord.http.delete(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==204) return resolve();
+					reject(rawData);
+				}
+			)
+		})
+	}
+	
 	addMessageReaction(messageId, emoji) {
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {

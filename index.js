@@ -74,6 +74,8 @@ class discordp {
 		
 		classHelper.setHiddenProperty(this, 'http', require("./networking/sendRequests.js")())
 		classHelper.setHiddenProperty(this, 'endpoints', require("./constants/endpoints.js"))
+		
+		this.emojis = require("./constants/emojis.js");
 	}
 
 	connect(login) {

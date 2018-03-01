@@ -1,3 +1,4 @@
+﻿
 module.exports = {
 	baseUrl: "https://discordapp.com",
 	gateway: "wss://gateway.discord.gg/?v=6&encoding=json",

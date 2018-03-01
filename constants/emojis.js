@@ -9015,7 +9015,26 @@
 
 var fitzpatrick_scale_modifiers = ["🏻", "🏼", "🏽", "🏾", "🏿"]
 
-module.exports = {
-	emojis: emojis
+
+class Emojis {
+	constructor() {
+		
+	}
+	
+	get raw() {
+		return emojis;
+	}
+	
+	translateChar(chr) {
+		var wat = encodeURIComponent(chr)
+		var idk = "EF%B8%8F%" // % infront usually
+		var pos = wat.search(idk)
+		if (pos != -1) wat = wat.replace(idk, "");
+		return wat
+	}
+	
+	inspect() { return "Collection of Emojis" }
 }
+
+module.exports = new Emojis()
 

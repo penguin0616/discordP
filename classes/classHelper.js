@@ -91,6 +91,7 @@ function toBytes(str) {
 	return b
 }
 
+
 module.exports.translateEmoji = function(name) {
 	var name2 = name.substring(0, 1) + String.fromCharCode(65039) + name.substring(1)
 	
