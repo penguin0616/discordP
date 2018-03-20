@@ -245,21 +245,24 @@ function setupGateway(session) {
 			return;
 		}
 		
-		if (newMsg.pinned != oldMsg.pinned) {
-			oldMsg.pinned = newMsg.pinned;
-			if (oldMsg.pinned == true) eEvents.emit('MESSAGE_PIN', oldMsg); // experimental
-			else if (oldMsg.pinned == false) eEvents.emit('MESSAGE_UNPIN', oldMsg);
-			// pin change
-			return;
+		if ((oldMsg.isDM==true && socket.shard==0) || oldMsg.isDM==false) {
+		
+			if (newMsg.pinned != oldMsg.pinned) {
+				oldMsg.pinned = newMsg.pinned;
+				if (oldMsg.pinned == true) eEvents.emit('MESSAGE_PIN', oldMsg); // experimental
+				else if (oldMsg.pinned == false) eEvents.emit('MESSAGE_UNPIN', oldMsg);
+				// pin change
+				return;
+			}
+			
+			oldMsg._edits.push(classHelper.clone(oldMsg))
+			
+			for (var i in newMsg) {
+				oldMsg[i] = newMsg[i];
+			}
+			
+			eEvents.emit('MESSAGE_EDIT', oldMsg);
 		}
-		
-		oldMsg._edits.push(classHelper.clone(oldMsg))
-		
-		for (var i in newMsg) {
-			oldMsg[i] = newMsg[i];
-		}
-		
-		if ((oldMsg.isDM==true && socket.shard==0) || oldMsg.isDM==false) eEvents.emit('MESSAGE_EDIT', oldMsg);
 		
 		
 		
