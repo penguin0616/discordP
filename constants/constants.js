@@ -36,7 +36,8 @@ module.exports = {
 	},
 	RELATIONSHIPS: {
 		FRIEND: 1,
-		BLOCKED: 2
+		BLOCKED: 2,
+		PENDING_FRIEND: 3
 	},
 	GATEWAY_OPCODE: {
 		DISPATCH: 0,

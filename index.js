@@ -157,7 +157,11 @@ function setupGateway(session) {
 		e.relationships.forEach(relation => {
 			if (relation.type == constants.RELATIONSHIPS.FRIEND) {session.friends.push(new iUser(session, relation.user)); }
 			else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(session, relation.user)); }
-			else { throw "Unknown relationship found"; }
+			else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND) {}
+			else {
+				console.log(relation);
+				throw "Unknown relationship found";
+			}
 		})
 		delete e.relationships;
 
@@ -210,6 +214,8 @@ function setupGateway(session) {
 		// user_feed_settings
 		delete e.user_feed_settings;
 		
+		// asd
+		
 		if (JSON.stringify(e) != "{}" && session.debug) console.log(`Gateway[${socket.shard}] ready not completely parsed:`, e);
 		
 		eEvents.emit('GATEWAY_READY');
@@ -221,13 +227,44 @@ function setupGateway(session) {
 	// Message
 	iEvents.on('MESSAGE_CREATE', (socket, m) => {
 		var msg = new iMessage(session, m);
+		/*
 		internal.messages[msg.id]={edits:[]}
 		internal.messages[msg.id].original = msg;
 		internal.messages[msg.id].current = msg;
+		*/
+		internal.messages[msg.id] = msg;
 		
 		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_CREATE', msg);
 	})
 	iEvents.on('MESSAGE_UPDATE', (socket, m) => {
+		var newMsg = new iMessage(session, m);
+		var oldMsg = internal.messages[newMsg.id];
+		
+		if (oldMsg == undefined) {
+			internal.messages[newMsg.id] = newMsg;
+			return;
+		}
+		
+		if (newMsg.pinned != oldMsg.pinned) {
+			oldMsg.pinned = newMsg.pinned;
+			if (oldMsg.pinned == true) eEvents.emit('MESSAGE_PIN', oldMsg); // experimental
+			else if (oldMsg.pinned == false) eEvents.emit('MESSAGE_UNPIN', oldMsg);
+			// pin change
+			return;
+		}
+		
+		oldMsg._edits.push(classHelper.clone(oldMsg))
+		
+		for (var i in newMsg) {
+			oldMsg[i] = newMsg[i];
+		}
+		
+		if ((oldMsg.isDM==true && socket.shard==0) || oldMsg.isDM==false) eEvents.emit('MESSAGE_EDIT', oldMsg);
+		
+		
+		
+		
+		/*
 		if (m.author==undefined) return; // embed
 		var msg = new iMessage(session, m);
 		var info = internal.messages[msg.id]
@@ -248,15 +285,23 @@ function setupGateway(session) {
 		if (last.pinned != last2.pinned) return; // just a pin
 		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_EDIT', last, last2); // new, old
 		info.current = msg;
+		*/
 	})
-	iEvents.on('MESSAGE_DELETE', (socket, d) => {
+	iEvents.on('MESSAGE_DELETE', (socket, data) => {
+		var msg = internal.messages[data.id];
+		if (msg == undefined) return;
+		msg.deleted = true;
+		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_DELETE', msg);
+		
+		/*
 		var info = internal.messages[d.id]
 		if (info==undefined) return;
 		var msg = info.edits[info.edits.length-1]
 		if (msg == undefined) msg = info.original;
 		msg.deleted = true;
+		*/
 		
-		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_DELETE', msg);
+		// if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_DELETE', msg);
 	})
 	iEvents.on('MESSAGE_DELETE_BULK', (socket, d) => {
 		var msgs = [];
@@ -491,6 +536,9 @@ function setupGateway(session) {
 		// idk
 	})
 	
+	iEvents.on('USER_GUILD_SETTINGS_UPDATE', (d) => {
+		// idk
+	})
 	
 	iEvents.on('RELATIONSHIP_REMOVE', (d) => {
 		// idk

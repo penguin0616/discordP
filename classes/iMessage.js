@@ -54,6 +54,12 @@ class iMessage extends iBase {
 			var value = data[index]
 			this[index] = value
 		}
+		
+		classHelper.setHiddenProperty(this, '_edits', []);
+	}
+	
+	get edits() {
+		return this._edits;
 	}
 	
 	get channel() {
