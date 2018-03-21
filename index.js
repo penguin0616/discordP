@@ -310,9 +310,8 @@ function setupGateway(session) {
 		var msgs = [];
 		for (var index in d.ids) {
 			var id = d.ids[index];
-			var info = internal.messages[id];
-			if (info) {
-				var msg = info.current;
+			var msg = internal.messages[id];
+			if (msg) {
 				msg.deleted = true;
 				msgs.push(msg);
 			}
