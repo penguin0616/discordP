@@ -534,15 +534,15 @@ function setupGateway(session) {
 	
 	
 	// Etc
-	iEvents.on('RESUMED', (d) => {
+	iEvents.on('RESUMED', (socket, d) => {
 		// idk
 	})
 	
-	iEvents.on('USER_GUILD_SETTINGS_UPDATE', (d) => {
+	iEvents.on('USER_GUILD_SETTINGS_UPDATE', (socket, d) => {
 		// idk
 	})
 	
-	iEvents.on('RELATIONSHIP_ADD', (relation) => {
+	iEvents.on('RELATIONSHIP_ADD', (socket, relation) => {
 		if (relation.type == constants.RELATIONSHIPS.FRIEND) {session.friends.push(new iUser(session, relation.user)); }
 		else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(session, relation.user)); }
 		else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND) {}
@@ -552,7 +552,7 @@ function setupGateway(session) {
 		}
 	})
 	
-	iEvents.on('RELATIONSHIP_REMOVE', (relation) => {
+	iEvents.on('RELATIONSHIP_REMOVE', (socket, relation) => {
 		if (relation.type == constants.RELATIONSHIPS.FRIEND) {
 			delete session.friends.find(f => f.id == relation.user.id)
 		}
@@ -567,7 +567,7 @@ function setupGateway(session) {
 	})
 	
 	
-	iEvents.on('USER_SETTINGS_UPDATE', (d) => {
+	iEvents.on('USER_SETTINGS_UPDATE', (socket, d) => {
 		// idk
 	})
 	
