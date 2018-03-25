@@ -542,8 +542,28 @@ function setupGateway(session) {
 		// idk
 	})
 	
-	iEvents.on('RELATIONSHIP_REMOVE', (d) => {
-		// idk
+	iEvents.on('RELATIONSHIP_ADD', (relation) => {
+		if (relation.type == constants.RELATIONSHIPS.FRIEND) {session.friends.push(new iUser(session, relation.user)); }
+		else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(session, relation.user)); }
+		else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND) {}
+		else {
+			console.log(relation);
+			throw "Unknown relationship found";
+		}
+	})
+	
+	iEvents.on('RELATIONSHIP_REMOVE', (relation) => {
+		if (relation.type == constants.RELATIONSHIPS.FRIEND) {
+			delete session.friends.find(f => f.id == relation.user.id)
+		}
+		else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {
+			delete session.blocked.find(f => f.id == relation.user.id)
+		}
+		else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND) {}
+		else {
+			console.log(relation);
+			throw "Unknown relationship found";
+		}
 	})
 	
 	
