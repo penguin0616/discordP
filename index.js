@@ -1,7 +1,3 @@
-// old format wasn't that great.
-// if something breaks, blame Dark  Overlord#9351
-// cuz hes a good scapegoat, though he probably changed his username since i put it here
-
 // events
 const eventEmitter = require("events");
 
@@ -157,7 +153,7 @@ function setupGateway(session) {
 		e.relationships.forEach(relation => {
 			if (relation.type == constants.RELATIONSHIPS.FRIEND) {session.friends.push(new iUser(session, relation.user)); }
 			else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(session, relation.user)); }
-			else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND) {}
+			else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND || relation.type == constants.RELATIONSHIPS.SELF_PENDING_FRIEND) {}
 			else {
 				console.log(relation);
 				throw "Unknown relationship found";
@@ -385,6 +381,7 @@ function setupGateway(session) {
 		var guild = new iGuild(session, data);
 		session.guilds[guild.id] = guild
 		eEvents.emit('GUILD_CREATE', guild) // seems ok
+		
 	})
 	iEvents.on('GUILD_UPDATE', (socket, data) => {
 		var guild = new iGuild(session, data)
@@ -545,7 +542,7 @@ function setupGateway(session) {
 	iEvents.on('RELATIONSHIP_ADD', (socket, relation) => {
 		if (relation.type == constants.RELATIONSHIPS.FRIEND) {session.friends.push(new iUser(session, relation.user)); }
 		else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {session.blocked.push(new iUser(session, relation.user)); }
-		else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND) {}
+		else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND || relation.type == constants.RELATIONSHIPS.SELF_PENDING_FRIEND) {}
 		else {
 			console.log(relation);
 			throw "Unknown relationship found";
@@ -554,12 +551,18 @@ function setupGateway(session) {
 	
 	iEvents.on('RELATIONSHIP_REMOVE', (socket, relation) => {
 		if (relation.type == constants.RELATIONSHIPS.FRIEND) {
-			delete session.friends.find(f => f.id == relation.user.id)
+			if (relation.user == undefined) {
+				console.log(relation);
+			}
+			delete session.friends.find(f => f.id == relation.id)
 		}
 		else if (relation.type == constants.RELATIONSHIPS.BLOCKED) {
-			delete session.blocked.find(f => f.id == relation.user.id)
+			if (relation.user == undefined) {
+				console.log(relation);
+			}
+			delete session.blocked.find(f => f.id == relation.id)
 		}
-		else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND) {}
+		else if (relation.type == constants.RELATIONSHIPS.PENDING_FRIEND || relation.type == constants.RELATIONSHIPS.SELF_PENDING_FRIEND) {}
 		else {
 			console.log(relation);
 			throw "Unknown relationship found";

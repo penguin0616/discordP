@@ -21,6 +21,10 @@ class iRole extends iBase {
 		return (this.discord.guilds[this.guild_id]);
 	}
 	
+	get color_hex() {
+		return this.color.toString(16);
+	}
+	
 	setPosition(position) {
 		var discord = this.discord;
 		return new Promise((resolve, reject) => {
@@ -55,6 +59,23 @@ class iRole extends iBase {
 					if (error) return reject(error);
 					if (response.statusCode==200) return resolve(rawData);
 					reject(rawData);
+				}
+			)
+		})
+	}
+	
+	commit() {
+		var discord = this.discord;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.modifyGuildRole, {"guild.id": this.guild_id, "role.id": this.id})
+			discord.http.patch(
+				url,
+				JSON.stringify({name: this.name, permissions: this.permissions.permission, color: this.color, hoist: this.hoist, mentionable: this.mentionable}),
+				function(err, res, raw) {
+					if (err) reject(err);
+					console.log(res.statusCode, raw);
+					if (res.statusCode==200) return resolve(raw);
+					reject(raw);
 				}
 			)
 		})

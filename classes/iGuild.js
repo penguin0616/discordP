@@ -82,20 +82,28 @@ class iGuild extends iBase {
 			for (var i in array) {
 				if (array[i] == undefined) {
 					console.log(array)
-					console.log(this)
+					delete array[i]; // temp fix: i need to deal with this eventually
 				}
 			}
 			// res
 			var index = array.findIndex(c => c.id==id.id);
 			
 			if (index == -1) {array.push(channel);} // new
-			else if (channel == undefined) {array.splice(index, 1);} // remove
-			else {array[index] = channel;} // replace
+			else if (channel == undefined) {
+				array.splice(index, 1);
+			} // remove
+			else {
+				array[index] = channel;
+			} // replace
 			
 		})
 	}
 	
 	// get
+	
+	get iconURL() {
+		return `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.webp`
+	}
 	
 	get acronym() {
 		if (!this.name) return "";
