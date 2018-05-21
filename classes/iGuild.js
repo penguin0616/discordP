@@ -76,6 +76,9 @@ class iGuild extends iBase {
 				this.discord.users[user.id] = user;
 			}
 		}
+		
+		
+		/*
 		classHelper.setHiddenProperty(this, 'setChannel', function(id, channel) {
 			var array = (id.type == constants.CHANNELS.CATEGORY) ? this.channelCategories : this.channels;
 			// debug
@@ -97,6 +100,7 @@ class iGuild extends iBase {
 			} // replace
 			
 		})
+		*/
 	}
 	
 	// get

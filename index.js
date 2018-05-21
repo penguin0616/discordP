@@ -334,7 +334,8 @@ function setupGateway(session) {
 		else throw "Unknown channel created?: " + JSON.stringify(data);
 		
 		if (channel.guild) {
-			channel.guild.setChannel(channel, channel);
+			//channel.guild.setChannel(channel, channel);
+			channel.guild.channels.push(channel);
 		}
 		session.channels[channel.id] = channel;
 		
@@ -343,6 +344,11 @@ function setupGateway(session) {
 	iEvents.on('CHANNEL_UPDATE', (socket, data) => {
 		var old = session.channels[data.id];
 		
+		for (var i in data) {
+			old[i] = data[i];
+		}
+		
+		/*
 		var channel
 		if (data.type == constants.CHANNELS.TEXT) channel = new iTextChannel(session, data, data.guild_id);
 		else if (data.type == constants.CHANNELS.VOICE) channel = new iVoiceChannel(session, data, data.guild_id);
@@ -351,12 +357,14 @@ function setupGateway(session) {
 		else throw 'ah crap';
 		
 		if (old.guild) {
+			
 			old.guild.setChannel(channel, channel);
 		}
 		
 		session.channels[channel.id] = channel;
+		*/
 		
-		eEvents.emit('CHANNEL_UPDATE', old, channel);
+		eEvents.emit('CHANNEL_UPDATE', old);
 	})
 	iEvents.on('CHANNEL_DELETE', (socket, data) => {
 		var channel = session.channels[data.id];
@@ -365,7 +373,8 @@ function setupGateway(session) {
 			return;
 		}
 		if (channel.guild) { // oh no
-			channel.guild.setChannel(channel, undefined);
+			channel.guild.channels.splice(channel.guild.channels.findIndex(c => c.id == data.id), 1);
+			//channel.guild.setChannel(channel, undefined);
 		}
 		delete session.channels[data.id];
 		eEvents.emit('CHANNEL_DELETE', channel);
