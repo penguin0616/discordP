@@ -387,6 +387,7 @@ function setupGateway(session) {
 	
 	// Guild
 	iEvents.on('GUILD_CREATE', (socket, data) => {
+		if (socket.shard != 0) return;
 		var guild = new iGuild(session, data);
 		session.guilds[guild.id] = guild
 		eEvents.emit('GUILD_CREATE', guild) // seems ok
