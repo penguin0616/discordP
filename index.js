@@ -29,6 +29,8 @@ class discordp {
 			messages: []
 		});
 		
+		this.messageCacheLimit = (typeof(data.messageCacheLimit)=="number") ? data.messageCacheLimit : 500;
+		
 		// status
 		this.loggedIn = false;
 		this.connected = false;
@@ -210,6 +212,12 @@ function setupGateway(session) {
 		// user_feed_settings
 		delete e.user_feed_settings;
 		
+		// sessions
+		delete e.sessions;
+		
+		// guild_experiments
+		delete e.guild_experiments;
+		
 		// asd
 		
 		if (JSON.stringify(e) != "{}" && session.debug) console.log(`Gateway[${socket.shard}] ready not completely parsed:`, e);
@@ -228,16 +236,23 @@ function setupGateway(session) {
 		internal.messages[msg.id].original = msg;
 		internal.messages[msg.id].current = msg;
 		*/
-		internal.messages[msg.id] = msg;
+		
+		//internal.messages[msg.id] = msg;
+		internal.messages.push(msg);
+		if (internal.messages.length > session.messageCacheLimit) internal.messages.shift();
+		
+		//console.log('new msg', msg.channel.guild.name, (guild_id >> 22) % num_shards); // heck?
 		
 		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_CREATE', msg);
 	})
 	iEvents.on('MESSAGE_UPDATE', (socket, m) => {
 		var newMsg = new iMessage(session, m);
-		var oldMsg = internal.messages[newMsg.id];
+		//var oldMsg = internal.messages[newMsg.id];
+		var oldMsg = internal.messages.find(v => v.id == newMsg.id);
 		
 		if (oldMsg == undefined) {
-			internal.messages[newMsg.id] = newMsg;
+			// internal.messages[newMsg.id] = newMsg;
+			if (internal.messages.length > session.messageCacheLimit) internal.messages.shift();
 			return;
 		}
 		
@@ -287,7 +302,8 @@ function setupGateway(session) {
 		*/
 	})
 	iEvents.on('MESSAGE_DELETE', (socket, data) => {
-		var msg = internal.messages[data.id];
+		//var msg = internal.messages[data.id];
+		var msg = internal.messages.find(v => v.id == data.id);
 		if (msg == undefined) return;
 		msg.deleted = true;
 		if ((msg.isDM==true && socket.shard==0) || msg.isDM==false) eEvents.emit('MESSAGE_DELETE', msg);
@@ -306,7 +322,8 @@ function setupGateway(session) {
 		var msgs = [];
 		for (var index in d.ids) {
 			var id = d.ids[index];
-			var msg = internal.messages[id];
+			//var msg = internal.messages[id];
+			var msg = internal.messages.find(v => v.id == id);
 			if (msg) {
 				msg.deleted = true;
 				msgs.push(msg);
@@ -388,6 +405,7 @@ function setupGateway(session) {
 	// Guild
 	iEvents.on('GUILD_CREATE', (socket, data) => {
 		if (socket.shard != 0) return;
+		console.log('f')
 		var guild = new iGuild(session, data);
 		session.guilds[guild.id] = guild
 		eEvents.emit('GUILD_CREATE', guild) // seems ok
@@ -544,6 +562,8 @@ function setupGateway(session) {
 	iEvents.on('RESUMED', (socket, d) => {
 		// idk
 	})
+	
+	iEvents.on('SESSIONS_REPLACE', (socket, d) => {})
 	
 	iEvents.on('USER_GUILD_SETTINGS_UPDATE', (socket, d) => {
 		// idk
