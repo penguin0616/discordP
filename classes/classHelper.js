@@ -1,4 +1,5 @@
 const fs = require("fs");
+const querystring = require("querystring");
 var emojis = require("../constants/emojis.js").emojis;
 
 module.exports.constants = function() {
@@ -7,6 +8,10 @@ module.exports.constants = function() {
 
 module.exports.endpoints = function() {
 	return require("../constants/endpoints.js");
+}
+
+module.exports.makeQS = function(obj, sep, eq, op) {
+	return querystring.stringify(obj, sep, eq, op);
 }
 
 module.exports.setHiddenProperty = function(state, name, value) {

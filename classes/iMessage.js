@@ -78,6 +78,31 @@ class iMessage extends iBase {
 	
 	get selfOwned() {return this.author.id == this.discord.user.id}
 	
+	resolveContent() {
+		var asd = this.content;
+		var mentions = this.mentions;
+		var channel = this.channel;
+		var discord = this.discord;
+		asd = asd.replace(/<([@!#&]{1,2})(\d+)>/g, function(base, prefix, id) {
+			var u = mentions.find(m => m.id == id);
+			if (u) return "@"+ u.username + "#" + u.discriminator;
+			
+			if (channel) {
+				var c = discord.channels.find(c => c.id == id);
+				if (c) return "#" + c.name;
+				
+				if (channel.guild) {
+					var r = channel.guild.roles.find(r => r.id == id);
+					if (r) return "@" + r.name;
+				}
+			}
+			
+			
+			return `<${prefix}${id}>`;
+		})
+		return asd;
+	}
+	
 	reply(content, tts, embed) {
 		return this.channel.sendMessage(`${this.author.mention}, ${content}`, tts, embed);
 	}

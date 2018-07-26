@@ -134,6 +134,10 @@ class iGuild extends iBase {
 	
 	get owner() { return this.members.find(m => m.id==this.owner_id) }
 	
+	get fetchGuildMembers() {
+		return this.getGuildMembers
+	}
+	
 	// methods
 	
 	getBans() {
@@ -418,7 +422,31 @@ class iGuild extends iBase {
 		return this.modifyGuildMember(id, {channel_id: channelId})
 	}
 	
-	
+	getGuildMembers(limit, after) {
+		var discord = this.discord;
+		var id = this.id;
+		return new Promise((resolve, reject) => {
+			var url = classHelper.formatURL(discord.endpoints.getGuildMembers, {"guild.id": this.id})
+			url = url + "?" + classHelper.makeQS({limit: limit});
+			if (after) url = url + "&after=" + after;
+			
+			discord.http.get(
+				url, 
+				function(error, response, rawData) {
+					if (error) return reject(error);
+					if (response.statusCode==200) {
+						var data = JSON.parse(rawData);
+						
+						for (var i in data) data[i] = new iGuildMember(discord, data[i], id);
+						
+						resolve(data);
+						return
+					}
+					reject(rawData);
+				}
+			)
+		}) 
+	}
 	
 }
 
